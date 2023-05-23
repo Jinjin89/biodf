@@ -18,7 +18,6 @@ fun_utils_broadcast = function(input_variables,input_targets){
 
 }
 
-
 #' Default theme
 #'
 #' @param ... passing to theme
@@ -29,6 +28,10 @@ fun_utils_broadcast = function(input_variables,input_targets){
 
 tn = function(...){
   ggplot2::theme_minimal()+
+    ggplot2::theme(
+      panel.grid = ggplot2::element_blank(),
+      axis.line = ggplot2::element_line(),
+      axis.ticks = ggplot2::element_line())+
     ggplot2::theme(...)
 }
 
@@ -231,16 +234,13 @@ fun_utils_insert_newline_for_long_stings = function(
 #'
 #' @export
 
-fun_util_remove = function(...){
-  rm(list =ls())
+fun_util_reinstall = function(...){
   detach("package:biodf")
   remove.packages("biodf")
   install.packages("~/data/project/pj/biodf_0.0.0.1.tar.gz",repos = NULL)
   .rs.restartR()
+  require(biodf)
 }
-
-
-
 
 
 #' Get colors
@@ -293,7 +293,7 @@ fun_utils_get_color = function(
       min_val = min(var_data,na.rm = T)
       max_val = max(var_data,na.rm = T)
 
-      color_low = grDevices::colorRampPalette("white",color_tmp)(10)[color_shift]
+      color_low = grDevices::colorRampPalette(c("white",color_tmp))(10)[color_shift]
       color_list[[each_var]] =
         circlize::colorRamp2(
           breaks = c(min_val,max_val),
@@ -329,3 +329,102 @@ fun_utils_get_color = function(
   color_list
 }
 
+
+
+
+#' Oncoprint data preparation
+#'
+#' @param input_df input_df
+#' @param input_variables genes to visulize
+#' @param input_variables_column gene column, like Hugo_Symbol in maf format
+#' @param input_mut the mutation type column
+#' @param input_sample the sample column, like Tumor_Sample_Barcode in maf format
+#' @param input_sample_append input_sample_append
+#' @param fun_aggre fun_aggre
+#' @param input_col color for default mutation type
+#' @param bg_col bg_col
+#' @param cell_width cell_width
+#' @param height_decrease height_decrease
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_utils_df2oncoprint = function(
+    input_df,
+    input_variables,
+    input_variables_column = "Hugo_Symbol",
+    input_mut = "mutation_type",
+    input_sample="sample",
+    input_sample_append = NULL,
+    fun_aggre = function(x) unique(x) %>% na.omit()%>% paste0(collapse = ";"),
+    # alter function params
+    input_col = NULL,
+    bg_col ="gray",
+    cell_width = 0.9,
+    height_decrease = 0.05
+
+){
+  # 1) get dt
+  input_dt =
+    input_df %>%
+    data.table::data.table() %>%
+    data.table::dcast.data.table(
+      formula = as.formula(paste0(input_sample,'~',input_variables_column)),
+      value.var = input_mut,
+      fun.aggregate = fun_aggre
+    )
+
+  # 2) append genes without mutation
+  genes_not_found =input_variables %>%
+    dplyr::setdiff(y = colnames(input_dt))
+
+  for(i in seq_along(genes_not_found)){
+    gene_tmp = genes_not_found[i]
+    input_dt[[gene_tmp]] = ""
+  }
+
+  # 3) select the genes
+  onco_mat =
+    input_dt %>%
+    dplyr::select(all_of(c(input_sample,input_variables))) %>%
+    as.data.frame() %>%
+    magrittr::set_rownames(.[[input_sample]]) %>%
+    dplyr::select(-!!as.name(input_sample)) %>%
+    t %>%
+    as.data.frame()
+
+  # 5) append samples
+  input_sample_append =
+    input_sample_append %>%
+    dplyr::setdiff(colnames(onco_mat))
+
+  for(i in seq_along(input_sample_append)){
+    onco_mat[[input_sample_append[i]]] = ""
+  }
+  onco_mat = as.matrix(onco_mat)
+  # 4) onco mut
+  mut_type = input_df[[input_mut]]%>% na.omit() %>% unique
+  if(is.null(input_col)){
+    input_col = ggpubr::get_palette("Paired",length(mut_type))
+  }else{
+    stopifnot("input_col should be longer"= (length(input_col) >= length(mut_type)))
+    input_col  = input_col[1:length(mut_type)]
+  }
+  # 5) get alter_type
+  input_mut_type = c("background",mut_type)
+  input_col = c(bg_col,input_col)
+  purrr::map(seq_along(c(input_mut_type)),function(i){
+    color_tmp = input_col[i]
+    eval(rlang::expr(function(x, y, w, h) grid.rect(x, y, w*!!cell_width, h*(1 -!!height_decrease*!!i) ,gp = gpar(fill = !!color_tmp, col = NA))))
+  }) %>%
+    unlist(recursive = F) %>%
+    purrr::set_names(input_mut_type) -> alter_list
+
+
+  list(mat = onco_mat,
+       alter_fun=alter_list,
+       color_map = structure(input_col,names = input_mut_type))
+
+
+}

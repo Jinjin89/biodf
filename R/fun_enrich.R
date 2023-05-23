@@ -38,7 +38,8 @@ fun_enrich_ora = function(input_genes,input_gs,pval = 0.2,term2gene = c("term","
 #'
 #' @examples
 fun_enrich_gsea = function(input_genes,input_gs,pval = 0.2,
-                           logFC = "logFC",gene = "ID",term2gene = c("term","gene")){
+                           logFC = "logFC",gene = "ID",
+                           term2gene = c("term","gene")){
   # 1) term to gene
   term_2_genes = dplyr::select(input_gs,dplyr::all_of(term2gene))
 
@@ -72,14 +73,18 @@ fun_enrich_gsea = function(input_genes,input_gs,pval = 0.2,
 #'
 #' @examples
 #'
-fun_enrich_patch = function(input_df,input_methods = "ora",pval = 0.2){
+fun_enrich_patch = function(input_df,input_methods = "ora",pval = 0.2,
+                            logFC = "logFC",gene = "ID",
+                            term2gene = c("term","gene")){
   if(tolower(input_methods[1]) == "ora"){
-    go_res = fun_enrich_ora(input_df,input_gs = go_db,pval = pval)
-    kegg_res = fun_enrich_ora(input_df,input_gs = kegg_db,pval = pval)
-    hallmark_res = fun_enrich_ora(input_df,input_gs = hallmark_db,pval = pval)
+    go_res = fun_enrich_ora(input_df,input_gs = go_db,pval = pval,term2gene = term2gene)
+    kegg_res = fun_enrich_ora(input_df,input_gs = kegg_db,pval = pval,term2gene = term2gene)
+    hallmark_res = fun_enrich_ora(input_df,input_gs = hallmark_db,pval = pval,term2gene = term2gene)
 
   }else{
-
+    go_res = fun_enrich_gsea(input_df,input_gs = go_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+    kegg_res = fun_enrich_gsea(input_df,input_gs = kegg_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+    hallmark_res = fun_enrich_gsea(input_df,input_gs = hallmark_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
   }
 
   return(list(

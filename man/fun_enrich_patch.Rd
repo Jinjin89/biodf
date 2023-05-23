@@ -4,7 +4,14 @@
 \alias{fun_enrich_patch}
 \title{GO, kegg and hallmark enrichment analysis for input_data,}
 \usage{
-fun_enrich_patch(input_df, input_methods = "ora", pval = 0.2)
+fun_enrich_patch(
+  input_df,
+  input_methods = "ora",
+  pval = 0.2,
+  logFC = "logFC",
+  gene = "ID",
+  term2gene = c("term", "gene")
+)
 }
 \arguments{
 \item{input_df}{data.frame for gsea or gene list for ora}

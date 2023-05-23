@@ -13,13 +13,14 @@ Imports:
     glmnet,
     impute,
     janitor,
-    purrr,
+    pROC,
     survival,
     survminer,
     timeROC
 Depends: 
     R (>= 2.10),
     rlang,
+    purrr,
     tidyr,
     stringr,
     patchwork,

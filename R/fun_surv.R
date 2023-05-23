@@ -124,7 +124,7 @@ fun_plot_surv_km =function(
     tables.theme =ggplot2::theme(
       plot.title=ggplot2::element_blank()
     ),
-    ggtheme = ggplot2::theme_bw(),
+    ggtheme = tn(),
     conf.int = F,
     xlab = "Months",
     pval=T,

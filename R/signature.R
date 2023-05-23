@@ -20,7 +20,6 @@ fun_sig_ssGSGA = function(
       kcdf="Gaussian",
       abs.ranking=TRUE,
       verbose=FALSE)
-    print(gsea_out)
     gsea_out = data.frame(t(gsea_out))
     gsea_out = dplyr::mutate_all(gsea_out,scale)
     gsea_out = dplyr::mutate_all(gsea_out,as.numeric)
@@ -64,4 +63,138 @@ fun_sig_weighted_sum = function(
   }
 
   input_df
+}
+
+#' Immune deonvolution
+#'
+#' @param input_expr expression matrix, should not be log2 transformed
+#' @param outfile outfile postion
+#' @param indications cancer type
+#' @param tumor T or F
+#' @param arrays T or F
+#'
+#' @return data.table
+#' @export
+#'
+fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arrays=F){
+
+  if(!file.exists(outfile)){
+    suppressMessages(require(immunedeconv))
+    source("CIBERSORT.R",local = T)
+    # 1) get celltype map
+    cell_map = immunedeconv::cell_type_map
+    cell_map = as.data.frame(cell_map)
+    cell_map = dplyr::filter(cell_map,
+                             method_dataset == "cibersort")
+    rownames(cell_map) = cell_map$method_cell_type
+    col_names = c("cell_type",colnames(input_expr))
+
+    # 2) TIMER
+    if(length(indications) != ncol(input_expr)){
+      indications = rep(indications,ncol(input_expr))
+    }
+    timer_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "timer",
+      indications = indications
+    )
+    timer_res$cell_type = paste0(timer_res$cell_type,"_TIMER")
+
+    # 3) CIBERSORT
+    cibersort_res = CIBERSORT(input_expr,lm22,perm = 1000,absolute = F)
+    cibersort_res =
+      cibersort_res %>%
+      as.data.frame() %>%
+      dplyr::filter(rownames(.) %in% rownames(cell_map)) %>%
+      dplyr::mutate(cell_type = cell_map[rownames(.),"cell_type"]) %>%
+      dplyr::select(dplyr::all_of(col_names))
+    cibersort_res$cell_type = paste0(cibersort_res$cell_type,"_CIBERSORT")
+
+
+    # 4) cibersort-abs
+    cibersort_abs_res = CIBERSORT(input_expr,lm22,perm = 1000,absolute = T)
+    cibersort_abs_res =
+      cibersort_abs_res %>%
+      as.data.frame() %>%
+      dplyr::filter(rownames(.) %in% rownames(cell_map)) %>%
+      dplyr::mutate(cell_type = cell_map[rownames(.),"cell_type"]) %>%
+      dplyr::select(dplyr::all_of(col_names))
+    cibersort_abs_res$cell_type = paste0(cibersort_abs_res$cell_type,"_CIBERSORT-ABS")
+
+
+    # 5) quantiseq
+    quantiseq_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "quantiseq",
+      arrays = arrays
+    )
+    quantiseq_res$cell_type = paste0(quantiseq_res$cell_type,"_QUANTISEQ")
+
+
+    # 6) mcpcounter
+    mcpcounter_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "mcp_counter"
+    )
+
+    mcpcounter_res$cell_type =  paste0(mcpcounter_res$cell_type,"_MCPCOUNTER")
+
+    # 8) xcell
+    xcell_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "xcell",
+      arrays = arrays
+    )
+    xcell_res$cell_type =  paste0(xcell_res$cell_type,"_XCELL")
+
+    # 9) epic
+    epic_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "epic",
+      tumor = tumor
+    )
+    epic_res$cell_type =  paste0(epic_res$cell_type,"_EPIC")
+
+
+    # 10) estimate
+    estimate_res = immunedeconv::deconvolute(
+      gene_expression  = input_expr,
+      method = "estimate"
+    )
+
+    estimate_res$cell_type =  paste0(estimate_res$cell_type,"_ESTIMATE")
+
+    estimate_res$cell_type = stringr::str_replace_all(estimate_res$cell_type,"stroma ","Stromal_")
+    estimate_res$cell_type = stringr::str_replace_all(estimate_res$cell_type,"immune ","Immune_")
+    estimate_res$cell_type = stringr::str_replace_all(estimate_res$cell_type,"estimate ","ESTIMATE_")
+    estimate_res = dplyr::filter(estimate_res,cell_type != "tumor purity_ESTIMATE")
+
+
+    # bindcols
+    merge_result =
+      dplyr::bind_rows(
+        timer_res,
+        cibersort_res,
+        cibersort_abs_res,
+        quantiseq_res,
+        mcpcounter_res,
+        xcell_res,
+        epic_res,
+        estimate_res
+      )
+    merge_result %>%
+      as.data.frame() %>%
+      magrittr::set_rownames(.$cell_type) %>%
+      dplyr::select(-cell_type) %>%
+      t() %>%
+      as.data.frame() %>%
+      t %>%
+      as.data.frame() %>%
+      dplyr::mutate(cell_type = rownames(.)) %>%
+      dplyr::select(all_of(col_names)) %>%
+      data.table::fwrite(outfile)
+  }
+
+  data.table::fread(outfile)
+
 }

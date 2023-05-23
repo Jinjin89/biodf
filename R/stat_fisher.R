@@ -34,11 +34,41 @@ fun_stat_fisher_mat = function(input_mat,input_name){
 
 }
 
+#' Fisher test by row
+#'
+#' @param input_df input_data
+#' @param input_abcd the abcd column
+#'
+#' @return data.frame which appedn the or, ci_low, ci_up, pval column
+#' @export
+#'
+#' @examples
 fun_stat_fisher_by_row = function(input_df,
-                                  input_abcd = c(2,3,4,5),
-                                  input_features = 1){
-  # 1) for loop for all the data
+                                  input_abcd = c(2,3,4,5)){
+  input_df$or = NA
+  input_df$ci_low = NA
+  input_df$ci_up = NA
+  input_df$pval = NA
 
+  # 1) for loop for all the data
+  for(i in seq_along(input_df[[1]])){
+    # 1) get matrix
+    a = input_df[[input_abcd[1]]][i]
+    b = input_df[[input_abcd[2]]][i]
+    c = input_df[[input_abcd[3]]][i]
+    d = input_df[[input_abcd[4]]][i]
+    mat_tmp = base::matrix(c(a,b,c,d),nrow = 2,ncol = 2,byrow = T)
+
+    # 2) get results
+    fisher_res = fun_stat_fisher_mat(input_mat = mat_tmp,input_name = "tmp")
+
+    # 3) merge results into input_df
+    input_df$or[i] = fisher_res$or
+    input_df$ci_low[i] = fisher_res$ci_low
+    input_df$ci_up[i] = fisher_res$ci_up
+    input_df$pval[i] = fisher_res$pva
+  }
+  input_df
 
 }
 
