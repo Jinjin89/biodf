@@ -51,7 +51,7 @@ fun_merge_matrix = function(input_df,input_matrix,input_variables,output_variabl
 #' @examples
 fun_merge_maf = function(input_df,input_maf,input_variables,key = "sample"){
   # 1) extract data
-  if(class(input_maf) == "MAF"){
+  if(class(input_maf)[1] == "MAF"){
     input_maf = input_maf@data
   }else{
     message("MAF class data is preferred, as it filtered out some variants for us!")

@@ -94,6 +94,71 @@ fun_surv_cutoff = function(
 
 }
 
+#' cutoff with quantile points, e.g. if you supplied input_pct as c(0.25,0.5,0.75), you will get four groups
+#'
+#' @param input_df  input_df
+#' @param input_variables input_variables
+#' @param output_variables_name output_variables_name
+#' @param input_pct perentage should be in (0,1)
+#' @param input_labels the lables length should be length(input_pct)+1
+#' @param factor_level  T or F, whether to refactor as input_labels
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_surv_cutoff_quantile = function(
+    input_df,
+    input_variables = "Risk_score",
+    output_variables_name = "Group4",
+    input_pct = c(0.25,0.5,0.75),
+    input_labels = c("Low","Intermediate_low","Intermediate_high","High"),
+    factor_level =T){
+  # 1) get the input variables and output variables have the same length
+  output_variables_name = fun_utils_broadcast(input_variables = input_variables,input_targets = output_variables_name)
+
+  stopifnot("input_pct should be smaller than 1 and larger than 0" = (max(input_pct) <1 && min(input_pct) > 0))
+
+  # 2) reorder the input_pct
+  input_pct = sort(unique(input_pct))
+
+  for(i in seq_along(input_variables)){
+    # 1) get current variables
+    current_var = input_variables[i]
+    current_var_values = input_df[[current_var]]
+
+    # 2) get current output variable names
+    current_var_out_name = output_variables_name[i]
+    input_df[[current_var_out_name]] = NA
+
+    # 3) cutoff for each
+    input_pct_values = quantile(current_var_values,input_pct,na.rm=T)
+    input_pct_values = c(min(current_var_values,na.rm = T)-1,input_pct_values,max(current_var_values,na.rm=T)+1)
+
+    # 4) for loop for the cutoff
+    for(each_index in 1:(length(input_pct_values)-1)){
+      current_pct_label = input_labels[each_index]
+      current_low = input_pct_values[each_index]
+      current_high = input_pct_values[(each_index+1)]
+
+      input_df[[current_var_out_name]] =
+        dplyr::case_when(
+          (current_low < current_var_values & current_var_values <= current_high) ~ current_pct_label,
+          TRUE~input_df[[current_var_out_name]]
+        )
+    }
+
+    # 4) refactor
+    if(factor_level){
+      input_df[[current_var_out_name]] = factor(input_df[[current_var_out_name]],levels = input_labels)
+    }
+  }
+
+  input_df
+}
+
+
+
 #' survival analysis
 #'
 #' @param input_df input data frame

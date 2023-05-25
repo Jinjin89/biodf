@@ -164,3 +164,83 @@ fun_sc_seurat_preprocessing <-
     }
     sc_seurat
   }
+
+
+#' fun_sc_read_mtx
+#'
+#' @param input_dir directory contains the mtx file
+#' @param input_anno data.frame, first column is sample name, second column is the mtx file position
+#' @param mtx_file_search key word to find mtx dir position
+#' @param outfile the outfile
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_sc_read_mtx <-  function(input_dir,outfile,input_anno=NULL,mtx_file_search = "barcodes.tsv.gz"){
+
+  if(!is.null(outfile) && file.exists(outfile)){
+    return(readRDS(outfile))
+  }
+
+
+  if(is.null(input_anno)){
+    # 1) get mtx directly
+    if(file.exists(paste0(input_dir,"/",mtx_file_search))){
+      message(paste0(mtx_file_search, "found"))
+      return(Seurat::Read10X(input_dir))
+    }else{
+      message("loop the directory to get mtx file list!")
+      # 1) get all the directory
+      list_dirs = list.dirs(input_dir,recursive = F,full.names = T)
+      # 2) get_annotations_name
+      sc_names = purrr::map_chr(list_dirs,basename)
+      input_anno = data.frame(row.names = sc_names)
+      input_anno$sc = sc_names
+
+      # 3) get the files format
+      sc_dirs =
+        purrr::map_chr(list_dirs,function(x){
+          #1) get new_dirs
+          file_search =
+            list.files(x,recursive = T,all.files = T,full.names = T,include.dirs = T)
+          # 2) get the found files
+          files_each = file_search[stringr::str_detect(file_search,mtx_file_search)]
+
+          # 3) get new data
+          if(length(files_each) ==0){
+            return(NA)
+          }else{
+            dirname(files_each[1])
+          }
+        })
+      input_anno$sc_dir = sc_dirs
+      input_anno = input_anno[!is.na(input_anno[[2]]),]
+
+    }
+  }
+  message("1) if: input_anno is supplied, -> first column: sample_name,2) second column: mtx file position\n2) else if:: found mtx, read it,\n3) else: loop the dirctory to get it ")
+
+  # 2 get from dirs
+  sc_seurat_list =
+    purrr::map(seq_along(input_anno[[1]]),function(i){
+      sc_10x_dir = input_anno[[2]][i]
+      message(paste0(i,") Reading from ",sc_10x_dir))
+      sc_count = Seurat::Read10X(sc_10x_dir)
+      sc_seurat = Seurat::CreateSeuratObject(counts = sc_count)
+      sc_seurat$sample =input_anno[[1]][i]
+      sc_seurat
+    })
+  names(sc_seurat_list) = input_anno[[1]]
+
+  if(length(sc_seurat_list) == 1){
+    sc_final =sc_seurat_list[[1]]
+  }else{
+    sc_final = merge(sc_seurat_list[[1]],sc_seurat_list[2:length(sc_seurat_list)],names(sc_seurat_list))
+  }
+
+  saveRDS(sc_final,file = outfile)
+
+  sc_final
+
+}

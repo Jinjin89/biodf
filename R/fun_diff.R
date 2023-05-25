@@ -88,3 +88,105 @@ fun_deg_cutoff = function(input_df,
   )
   input_df
 }
+
+
+
+
+
+#' Differential Methylation Region(DMR) using ChAMP
+#'
+#' @param input_df pd
+#' @param input_matrix beta
+#' @param outfile outfile
+#' @param input_group group
+#' @param input_sample sample column
+#' @param input_batch input_batch
+#' @param filterXY T or F
+#' @param arraytype arraytype
+#' @param cores cores
+#' @param method method
+#' @param adjPVal adjPVal
+#' @param compare.group compare.group
+#'
+#' @return list with differntial expressed genes
+#' @export
+#'
+#' @examples
+fun_dmr_champ <-  function(input_df,input_matrix,
+
+                           # save the DMR results
+                           outfile,
+
+                           # clinical features params
+                           input_group="Group",
+                           input_sample = "sample",
+                           input_batch = NULL,
+
+                           # DMR params
+                           filterXY = F,
+                           arraytype="450K",
+                           cores = 2,
+                           method ="BMIQ",
+                           adjPVal = 0.05,
+                           compare.group = c("cancer","normal")
+){
+
+  # if not found the results
+  if(!file.exists(outfile)){
+    message(paste0(outfile," not found, performing DMR using ChAMP!"))
+    # 1) get new clinical data
+    samples_found = intersect(input_df[[input_sample]],colnames(input_matrix))
+    input_df = input_df %>%
+      dplyr::filter(.[[input_sample]] %in% samples_found) %>%
+      dplyr::filter(.[[input_group]] %in% compare.group)
+    print(table(input_df[[input_group]]))
+    stopifnot("The comparison group should be equal to 2"=length(unique(input_df[[input_group]])) == 2)
+    samples_found = input_df[[input_sample]]
+
+
+    # 2) filter_matix
+    input_matrix = input_matrix[,samples_found]
+
+    # 3) run
+    # 3.1) load data
+    myLoad =
+      ChAMP::champ.filter(
+        beta = input_matrix,
+        pd = input_df,
+        filterXY = filterXY,
+        arraytype = arraytype
+      )
+
+    # 3.2) remove empty
+    myLoad = ChAMP::champ.impute(
+      beta = myLoad$beta
+      ,pd =myLoad$pd
+      ,ProbeCutoff = 0.2
+      ,SampleCutoff = 1
+    )
+
+    # 3.3) Norm
+    myNorm <- ChAMP::champ.norm(
+      beta=myLoad$beta,
+      arraytype=arraytype,
+      cores=cores,
+      method = method)
+
+    # 04) DMP
+    myDMP <- ChAMP::champ.DMP(
+      beta = myNorm,
+      adjPVal = adjPVal,
+      pheno=myLoad$pd[[input_group]],
+      compare.group = compare.group,
+      arraytype = arraytype)
+
+    # results
+    res =
+      list(data = myLoad,
+           myNorm = myNorm,
+           DMP = myDMP)
+    res %>%
+      saveRDS(outfile)
+  }
+  invisible(readRDS(outfile))
+}
