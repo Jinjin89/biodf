@@ -1,9 +1,49 @@
+#' Scissor analysis
+#'
+#' @param ... params passing to Scissor::Scissor
+#'
+#' @return seurat obj with scissor feature
+#' @export
+#'
+#' @examples
 fun_sc_seurat_scissor =
-  function(input_sc){
+  function(...){
+    suppressMessages(require(Scissor))
+    input_args = list(...)
+    # 1) scissor
+    if(!("scissor" %in% colnames(input_args$sc_dataset@meta.data))){
+      infos1 = ft_Scissor(...)
+
+      # 2 ) append scissor results into seurat
+      Scissor_select <- rep(0, ncol(input_args$sc_dataset))
+      names(Scissor_select) <- colnames(input_args$sc_dataset)
+      Scissor_select[infos1$Scissor_pos] <- 1
+      Scissor_select[infos1$Scissor_neg] <- 2
+      input_args$sc_dataset <- AddMetaData(input_args$sc_dataset,metadata = Scissor_select, col.name = "scissor")
+    }
+
+    input_args$sc_dataset
+  }
+
+
+#' Scissor plot
+#'
+#' @param input_sc  seurat plot
+#' @param pt.size pt.size
+#' @param group.by group.by
+#' @param cols colors
+#'
+#' @return ggplot obj
+#' @export
+#'
+#' @examples
+fun_sc_plot_scissor = function(input_sc,pt.size = 0.8,group.by = 'scissor',
+                               cols = c('grey','indianred1','royalblue')){
+  DimPlot(input_sc, reduction = 'umap',
+          group.by = group.by,
+          cols = cols, pt.size = pt.size, order = c(2,1))
 
 }
-
-
 #' Plot trajectory using monocle2
 #'
 #' @param input_sc input_seurat
@@ -59,10 +99,6 @@ fun_sc_seurat_trajectory <-
 
     cds
   }
-
-
-
-
 
 #' Single cell preprocessing wrapper, params set to NULL to skip
 #'
@@ -165,7 +201,6 @@ fun_sc_seurat_preprocessing <-
     sc_seurat
   }
 
-
 #' fun_sc_read_mtx
 #'
 #' @param input_dir directory contains the mtx file
@@ -242,5 +277,10 @@ fun_sc_read_mtx <-  function(input_dir,outfile,input_anno=NULL,mtx_file_search =
   saveRDS(sc_final,file = outfile)
 
   sc_final
+
+}
+
+
+fun_sc_seurat_progeny <- function(){
 
 }

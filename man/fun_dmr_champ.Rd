@@ -16,7 +16,7 @@ fun_dmr_champ(
   cores = 2,
   method = "BMIQ",
   adjPVal = 0.05,
-  compare.group = c("cancer", "normal")
+  compare.group = c("normal", "cancer")
 )
 }
 \arguments{

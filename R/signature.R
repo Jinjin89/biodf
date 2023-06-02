@@ -76,11 +76,10 @@ fun_sig_weighted_sum = function(
 #' @return data.table
 #' @export
 #'
-fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arrays=F){
+fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arrays=F,perm=1000){
 
   if(!file.exists(outfile)){
     suppressMessages(require(immunedeconv))
-    source("CIBERSORT.R",local = T)
     # 1) get celltype map
     cell_map = immunedeconv::cell_type_map
     cell_map = as.data.frame(cell_map)
@@ -101,7 +100,8 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
     timer_res$cell_type = paste0(timer_res$cell_type,"_TIMER")
 
     # 3) CIBERSORT
-    cibersort_res = CIBERSORT(input_expr,lm22,perm = 1000,absolute = F)
+    message(">>>CIBERSORT")
+    cibersort_res = CIBERSORT(input_expr,lm22,perm = perm,absolute = F)
     cibersort_res =
       cibersort_res %>%
       as.data.frame() %>%
@@ -112,7 +112,8 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
 
 
     # 4) cibersort-abs
-    cibersort_abs_res = CIBERSORT(input_expr,lm22,perm = 1000,absolute = T)
+    message(">>>CIBERSORT-ABS")
+    cibersort_abs_res = CIBERSORT(input_expr,lm22,perm = perm,absolute = T)
     cibersort_abs_res =
       cibersort_abs_res %>%
       as.data.frame() %>%
@@ -184,17 +185,13 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
       )
     merge_result %>%
       as.data.frame() %>%
-      magrittr::set_rownames(.$cell_type) %>%
+      set_rownames(.$cell_type) %>%
       dplyr::select(-cell_type) %>%
-      t() %>%
-      as.data.frame() %>%
       t %>%
       as.data.frame() %>%
-      dplyr::mutate(cell_type = rownames(.)) %>%
-      dplyr::select(all_of(col_names)) %>%
+      dplyr::mutate(sample =rownames(.)) %>%
+      select(dplyr::all_of(unique(c("sample",colnames(.))))) %>%
       data.table::fwrite(outfile)
   }
-
   data.table::fread(outfile)
-
 }

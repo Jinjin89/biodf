@@ -128,7 +128,7 @@ fun_dmr_champ <-  function(input_df,input_matrix,
                            cores = 2,
                            method ="BMIQ",
                            adjPVal = 0.05,
-                           compare.group = c("cancer","normal")
+                           compare.group = c("normal","cancer")
 ){
 
   # if not found the results
@@ -141,10 +141,16 @@ fun_dmr_champ <-  function(input_df,input_matrix,
       dplyr::filter(.[[input_group]] %in% compare.group)
     print(table(input_df[[input_group]]))
     stopifnot("The comparison group should be equal to 2"=length(unique(input_df[[input_group]])) == 2)
-    samples_found = input_df[[input_sample]]
+
+    input_df[[input_group]] = factor(input_df[[input_group]],
+                                     levels = compare.group)
+
+    input_df =
+      dplyr::arrange(input_df,!!as.name(input_group))
 
 
     # 2) filter_matix
+    samples_found = input_df[[input_sample]]
     input_matrix = input_matrix[,samples_found]
 
     # 3) run

@@ -361,6 +361,7 @@ fun_utils_df2oncoprint = function(
     # alter function params
     input_col = NULL,
     bg_col ="gray",
+    cell_height = 1,
     cell_width = 0.9,
     height_decrease = 0.05
 
@@ -416,7 +417,7 @@ fun_utils_df2oncoprint = function(
   input_col = c(bg_col,input_col)
   purrr::map(seq_along(c(input_mut_type)),function(i){
     color_tmp = input_col[i]
-    eval(rlang::expr(function(x, y, w, h) grid.rect(x, y, w*!!cell_width, h*(1 -!!height_decrease*!!i) ,gp = gpar(fill = !!color_tmp, col = NA))))
+    eval(rlang::expr(function(x, y, w, h) grid.rect(x, y, w*!!cell_width, h*(!!cell_height -!!height_decrease*!!i) ,gp = gpar(fill = !!color_tmp, col = NA))))
   }) %>%
     unlist(recursive = F) %>%
     purrr::set_names(input_mut_type) -> alter_list

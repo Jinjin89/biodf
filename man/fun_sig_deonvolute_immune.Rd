@@ -9,7 +9,8 @@ fun_sig_deonvolute_immune(
   outfile,
   indications,
   tumor = T,
-  arrays = F
+  arrays = F,
+  perm = 1000
 )
 }
 \arguments{

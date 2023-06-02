@@ -98,7 +98,7 @@ fun_merge_df = function(
     input_variables = NULL,
     input_regex = "xcell|cibersort|mcpcounter",
     key = "sample",
-    df_merge_key = "cell_type"){
+    df_merge_key = "sample"){
   # 1) check data
   if(is.character(input_df_merge)){
     if(file.exists(input_df_merge)){

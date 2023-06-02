@@ -10,7 +10,7 @@ fun_merge_df(
   input_variables = NULL,
   input_regex = "xcell|cibersort|mcpcounter",
   key = "sample",
-  df_merge_key = "cell_type"
+  df_merge_key = "sample"
 )
 }
 \arguments{

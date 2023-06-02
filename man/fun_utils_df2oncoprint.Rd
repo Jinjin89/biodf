@@ -14,6 +14,7 @@ fun_utils_df2oncoprint(
   fun_aggre = function(x) unique(x) \%>\% na.omit() \%>\% paste0(collapse = ";"),
   input_col = NULL,
   bg_col = "gray",
+  cell_height = 1,
   cell_width = 0.9,
   height_decrease = 0.05
 )
