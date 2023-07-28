@@ -2,8 +2,8 @@
 #'
 #' @param input_df input_df
 #' @param input_variables input_variables
-#' @param levels levels
 #' @param input_category input_category
+#' @param levels levels
 #' @param direction direction
 #' @param smooth smooth
 #'
@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-fun_roc = function(input_df,input_variables,levels = NULL, input_category = "binaryResponse",direction="auto",smooth = FALSE){
+fun_roc = function(input_df,input_variables,input_category = "binaryResponse",levels = NULL, direction="auto",smooth = FALSE){
 
   if(is.null(levels)){
     levels = levels(as.factor(input_df[[input_category]]))

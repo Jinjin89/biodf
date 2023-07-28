@@ -125,7 +125,7 @@ fun_merge_df = function(
   }
 
   # 3) check the input_df_merge data
-  stopifnot("df_merge_key not found in input_df_merge"=df_merge_key %in% colnames(input_df_merge))
+  stopifnot("df_merge_key not found in input_df_merge" = df_merge_key %in% colnames(input_df_merge))
   stopifnot("The merged variables not found in input_df_merge" = length(input_final)>0)
 
   # 4) get new data

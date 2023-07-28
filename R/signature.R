@@ -80,6 +80,10 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
 
   if(!file.exists(outfile)){
     suppressMessages(require(immunedeconv))
+    suppressMessages(require(e1071))
+    suppressMessages(require(preprocessCore))
+    suppressMessages(require(parallel))
+    suppressMessages(require(tidyverse))
     # 1) get celltype map
     cell_map = immunedeconv::cell_type_map
     cell_map = as.data.frame(cell_map)
@@ -101,9 +105,14 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
 
     # 3) CIBERSORT
     message(">>>CIBERSORT")
-    cibersort_res = CIBERSORT(input_expr,lm22,perm = perm,absolute = F)
+    cibersort_res = CIBERSORT(mixture_file = as.data.frame(input_expr),
+                              sig_matrix = lm22,
+                              perm = perm,
+                              QN=arrays,
+                              absolute = F)
     cibersort_res =
       cibersort_res %>%
+      t %>%
       as.data.frame() %>%
       dplyr::filter(rownames(.) %in% rownames(cell_map)) %>%
       dplyr::mutate(cell_type = cell_map[rownames(.),"cell_type"]) %>%
@@ -113,9 +122,14 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
 
     # 4) cibersort-abs
     message(">>>CIBERSORT-ABS")
-    cibersort_abs_res = CIBERSORT(input_expr,lm22,perm = perm,absolute = T)
+    cibersort_abs_res = CIBERSORT(mixture_file = as.data.frame(input_expr),
+                                  sig_matrix = lm22,
+                                  perm = perm,
+                                  QN = arrays,
+                                  absolute = T)
     cibersort_abs_res =
       cibersort_abs_res %>%
+      t %>%
       as.data.frame() %>%
       dplyr::filter(rownames(.) %in% rownames(cell_map)) %>%
       dplyr::mutate(cell_type = cell_map[rownames(.),"cell_type"]) %>%

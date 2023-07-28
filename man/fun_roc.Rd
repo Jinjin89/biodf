@@ -7,8 +7,8 @@
 fun_roc(
   input_df,
   input_variables,
-  levels = NULL,
   input_category = "binaryResponse",
+  levels = NULL,
   direction = "auto",
   smooth = FALSE
 )
@@ -18,9 +18,9 @@ fun_roc(
 
 \item{input_variables}{input_variables}
 
-\item{levels}{levels}
-
 \item{input_category}{input_category}
+
+\item{levels}{levels}
 
 \item{direction}{direction}
 

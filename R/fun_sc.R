@@ -25,7 +25,6 @@ fun_sc_seurat_scissor =
     input_args$sc_dataset
   }
 
-
 #' Scissor plot
 #'
 #' @param input_sc  seurat plot
@@ -280,7 +279,162 @@ fun_sc_read_mtx <-  function(input_dir,outfile,input_anno=NULL,mtx_file_search =
 
 }
 
+#' Calculate the progeny score for Seurat obj using decouplerR
+#'
+#' @param input_seurat seurat obj
+#' @param out_file the calculated score output
+#' @param fun_sc which expression data in Seurat to use, the default is RNA data
+#' @param top how many progeny genes for each pathway to use, default is 100
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_sc_seurat_progeny <- function(input_seurat,
+                                  out_file,
+                                  fun_sc = function(x) x@assays$RNA@data,
+                                  top = 100){
+  if(!file.exists(out_file)){
+    require(decoupleR)
 
-fun_sc_seurat_progeny <- function(){
+    # 1) get progeny pathway
+    net <- decoupleR::get_progeny(organism = 'human', top = top)
 
+
+    # 2) get assay data
+    input_sc_data = do.call(fun_sc,list(x = input_seurat))
+
+    mat <- as.matrix(input_sc_data)
+    message("The matrix values range from: ")
+    cat(max(mat))
+    cat("---->")
+    cat(min(mat))
+    cat("\n")
+
+    acts <-  decoupleR::run_wmean(mat=mat, net=net, .source='source', .target='target',
+                                  .mor='weight', times = 100, minsize = 5)
+
+    acts %>%
+      data.table::fwrite(out_file)
+
+  }
+  acts =
+    data.table::fread(out_file)
+  # 3) get progeny profile
+  input_seurat[['pathwayswmean']] <- acts %>%
+    dplyr::filter(statistic == 'norm_wmean') %>%
+    tidyr::pivot_wider(id_cols = 'source', names_from = 'condition',
+                       values_from = 'score') %>%
+    tibble::column_to_rownames('source') %>%
+    Seurat::CreateAssayObject(.)
+
+  DefaultAssay(object = input_seurat) <- "pathwayswmean"
+
+  input_seurat <- ScaleData(input_seurat)
+  input_seurat@assays$pathwayswmean@data <- input_seurat@assays$pathwayswmean@scale.data
+
+
+  input_seurat
 }
+
+#' cell_chat analysis
+#'
+#' @param input_sc Seurat obj
+#' @param cellchat_rds the output file used to save results
+#' @param group.by cellchat idents
+#' @param cell_search cell db use
+#' @param workers parrallel
+#'
+#' @return cellchat obj
+#' @export
+#'
+#' @examples
+fun_sc_cellchat <- function(input_sc,
+                            cellchat_rds,
+                            group.by = "cell_type",
+                            cell_search = "Secreted Signaling",
+                            workers = 4){
+  if(!file.exists(cellchat_rds)){
+    print("the cellchat obj not found, build it")
+    print(cellchat_rds)
+    # 1)
+    require(CellChat)
+    require(parallel)
+
+    # 2) prepare cellchat data
+    cellchat <- createCellChat(
+      object = input_sc,
+      meta = input_sc@meta.data,
+      group.by = group.by)
+
+    # 3) add meta data
+    #cellchat <- addMeta(cellchat, meta = meta)
+    cellchat <- setIdent(cellchat, ident.use = group.by)
+    groupSize <- as.numeric(table(cellchat@idents))
+
+    # 4) get db
+    CellChatDB <- CellChatDB.human # use CellChatDB.mouse if running on mouse data
+    showDatabaseCategory(CellChatDB)
+    if(length(cell_search) == 0 ){
+      print("using default cellChatDB")
+      CellChatDB.use <- CellChatDB # simply use the default CellChatDB
+    }else{
+      print("Using subseted data:")
+      print(cell_search)
+      CellChatDB.use <- subsetDB(CellChatDB, search = cell_search)
+    }
+    cellchat@DB <- CellChatDB.use
+
+    # 5)
+    cellchat <- subsetData(cellchat) # This step is necessary even if using the whole database
+    future::plan("multiprocess", workers = workers) # do parallel
+
+    # 6) get overexpressed genes
+    cellchat <- identifyOverExpressedGenes(cellchat)
+    cellchat <- identifyOverExpressedInteractions(cellchat)
+
+    # 7)
+    cellchat <- computeCommunProb(cellchat)
+
+    # 8)
+    cellchat <- computeCommunProbPathway(cellchat)
+
+    # 9) aggregate
+    cellchat <- aggregateNet(cellchat)
+
+    # 10) save it
+    cellchat %>%
+      saveRDS(cellchat_rds)
+  }
+  readRDS(cellchat_rds)
+}
+
+#' plot cell chat
+#'
+#' @param input_cellchat cell chat
+#' @param input_cell which cell to plot, NULL or cell types
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+fun_sc_cellchat_plot <- function(
+    input_cellchat,
+    input_cell = NULL){
+
+  # 1) get group size
+  groupSize <- as.numeric(table(input_cellchat@idents))
+
+  # 2)
+  if(length(input_cell) == 0 ){
+    netVisual_circle(input_cellchat@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
+
+  }else{
+    mat <- input_cellchat@net$weight
+    mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
+    mat2[input_cell, ] <- mat[input_cell, ]
+    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), title.name = input_cell)
+  }
+}
+
+

@@ -75,14 +75,34 @@ tn_bar = function(show_axis_title=F,legend_text = 6,...){
 #' @param nrow how many rows each page
 #' @param rownames whether showing the rownames
 #' @param digits the digits of numeric column
-#' @param fontSize font size, like "25%"
+#' @param fontSize font size, like "75%"
+#' @param outdir outfile to save
+#' @param overwrite whether to overwrite if file exists
 #'
 #' @return DT obj
 #' @export
 #'
 fun_utils_dt =
-  function(input_df,input_df_name = "data_download",nrow = 5,rownames=F,digits = 3,fontSize = "25%"){
-    num_column =    purrr::map_lgl(input_df, is.numeric)
+  function(input_df,input_df_name = "data_download",
+           outdir=NULL,overwrite=F,nrow = 5,rownames=F,digits = 3,fontSize = "75%"){
+    # 1) get numeric column
+    num_column =  purrr::map_lgl(input_df, is.numeric)
+    if(rownames){
+      num_column = c(FALSE,num_column)
+    }
+    # 2) save into disk
+    if(length(outdir) != 0){
+      outdir =outdir[1]
+      file_names = paste0(outdir,"/",input_df_name,".csv")
+      if((file.exists(file_names) && !overwrite)){
+        message("Found previously saved file, skipping, not overwriting")
+      }else{
+        message("save file into disk")
+        input_df %>% write.csv(file_names,row.names = rownames,quote = F)
+      }
+
+    }
+
     DT::formatRound(
       DT::formatStyle(
         DT::datatable(
@@ -429,3 +449,93 @@ fun_utils_df2oncoprint = function(
 
 
 }
+
+
+
+#' split data into train-test, or differents parts
+#'
+#' @param input_data input data, could be df,matrix,ds_list
+#' @param input_pct train-test percentage, 0.7,0.3
+#' @param key key_column
+#' @param using ds_list, using matrix
+#' @param seed randdome seed
+#' @param return_sample return samples list or same with input_data
+#'
+#' @return split obj
+#' @export
+#'
+#' @examples
+fun_utils_split <- function(input_data,
+                            input_pct = c(0.7,0.3),
+                            key = "sample",
+                            using = "expr",
+                            seed = 1,
+                            return_sample = F
+){
+  # 1) check data
+  stopifnot("input pct should be large than 0, and less than 1" = (min(input_pct)>0 && max(input_pct) < 1))
+  stopifnot("input_pct should be equal to 1" = (sum(input_pct) == 1))
+  stopifnot("input_pct length should be more than 1" = (length(input_pct) > 1))
+
+
+  # 2) if input data is data.frame
+  if(is.data.frame(input_data)){
+    # subseting
+    message("input_data is data.frame, subsetting using <key> column data")
+    subseting_candidate = input_data[[key]]
+
+  }else if (is.matrix(input_data)){
+    message("input_data is matrix, subsetting using colnames data")
+    subseting_candidate = colnames(input_data)
+
+  }else if((class(input_data)[1] == "list" && !is.null(input_data$clin) && !is.null(input_data[[using]]))){
+    message("input_data is a list, consider ds_list")
+    subseting_candidate = intersect(input_data$clin[[key]],colnames(input_data[[using]]))
+  }
+
+  # 3) return
+  samples_list = vector("list",length(input_pct))
+  total_length = length(subseting_candidate)
+  for (i in 1:(length(input_pct)-1)){
+    sample_size_tmp = as.integer(total_length * input_pct[i])
+    message(paste0("Getting samples, n = ",sample_size_tmp, ", for pct: ", input_pct[i]))
+    set.seed(seed)
+    samples_list[[i]] = sample(subseting_candidate,sample_size_tmp,replace = F)
+    subseting_candidate = dplyr::setdiff(subseting_candidate,samples_list[[i]])
+  }
+  message(paste0("Getting samples, n = ",length(subseting_candidate), ", for pct: ", input_pct[i+1]))
+  samples_list[[length(input_pct)]] = subseting_candidate
+
+  if(return_sample){
+    return(samples_list)
+  }else{
+    return_list = vector("list",length(samples_list))
+    if(is.data.frame(input_data)){
+      # subseting
+      for(i in seq_along(samples_list)){
+        return_list[[i]]=
+          input_data %>%
+          dplyr::filter(.[[key]] %in% samples_list[[i]])
+      }
+
+    }else if (is.matrix(input_data)){
+      for(i in seq_along(samples_list)){
+        return_list[[i]] = input_data[,samples_list[[i]]]
+      }
+
+    }else if((class(input_data)[1] == "list" && !is.null(input_data$clin) && !is.null(input_data[[using]]))){
+      for(i in seq_along(samples_list)){
+
+        return_list[[i]] =
+          list(
+            clin = input_data$clin %>%
+              dplyr::filter(.[[key]] %in% samples_list[[i]]),
+            tmp = input_data[[using]][,samples_list[[i]]]
+          ) %>%
+          magrittr::set_names(c("clin",using))
+      }
+    }
+    return(return_list)
+  }
+}
+

@@ -158,6 +158,28 @@ fun_surv_cutoff_quantile = function(
 }
 
 
+#' group var into three groups
+#'
+#'
+#' @return df
+#' @export
+
+fun_surv_cutoff3 <- function(input_df,
+                             input_variables = "Risk_score",
+                             output_variables_name = "Group3",
+                             input_pct = c(0.25,0.75),
+                             input_labels = c("Low","Medium","High"),
+                             factor_level =T){
+
+  fun_surv_cutoff_quantile(input_df,
+                           input_variables,
+                           output_variables_name,
+                           input_pct,
+                           input_labels,
+                           factor_level)
+
+}
+
 
 #' survival analysis
 #'

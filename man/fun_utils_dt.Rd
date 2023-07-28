@@ -7,10 +7,12 @@
 fun_utils_dt(
   input_df,
   input_df_name = "data_download",
+  outdir = NULL,
+  overwrite = F,
   nrow = 5,
   rownames = F,
   digits = 3,
-  fontSize = "25\%"
+  fontSize = "75\%"
 )
 }
 \arguments{
@@ -18,13 +20,17 @@ fun_utils_dt(
 
 \item{input_df_name}{data_frame_name}
 
+\item{outdir}{outfile to save}
+
+\item{overwrite}{whether to overwrite if file exists}
+
 \item{nrow}{how many rows each page}
 
 \item{rownames}{whether showing the rownames}
 
 \item{digits}{the digits of numeric column}
 
-\item{fontSize}{font size, like "25\%"}
+\item{fontSize}{font size, like "75\%"}
 }
 \value{
 DT obj
