@@ -10,7 +10,9 @@ fun_plot_bar_pval(
   input_ys,
   palette = "jco",
   bar_width = 0.3,
-  tn = tn_bar()
+  tn = tn_bar(),
+  chisq = F,
+  fun_stat_fisher_by_column_args = list()
 )
 }
 \arguments{

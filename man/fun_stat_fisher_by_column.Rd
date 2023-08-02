@@ -4,7 +4,14 @@
 \alias{fun_stat_fisher_by_column}
 \title{Give a data.frame, compare the variable}
 \usage{
-fun_stat_fisher_by_column(input_df, input_xs, input_ys, echo = F)
+fun_stat_fisher_by_column(
+  input_df,
+  input_xs,
+  input_ys,
+  echo = F,
+  chisq = F,
+  fun_stat_fisher_mat_args = list()
+)
 }
 \arguments{
 \item{input_df}{data.frame}
@@ -14,6 +21,10 @@ fun_stat_fisher_by_column(input_df, input_xs, input_ys, echo = F)
 \item{input_ys}{discrete variables}
 
 \item{echo}{whether print the confusion matrix}
+
+\item{chisq}{whether using chisq.text,defulat: FALSE}
+
+\item{fun_stat_fisher_mat_args}{fun_stat_fisher_mat_args}
 }
 \value{
 comparison of the fisher results

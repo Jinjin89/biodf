@@ -1,6 +1,6 @@
 Package: biodf
 Title: A collection of commonly used function in omics data analysis.
-Version: 0.0.0.1
+Version: 0.0.1.0
 Authors@R: 
     person("Qiangqiang", "Sun", , "sunkeke1993@gmail.com", role = c("aut", "cre"))
 Description: 

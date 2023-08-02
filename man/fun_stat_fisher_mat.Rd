@@ -4,12 +4,16 @@
 \alias{fun_stat_fisher_mat}
 \title{Perform the fisher test, return the data.frame}
 \usage{
-fun_stat_fisher_mat(input_mat, input_name)
+fun_stat_fisher_mat(input_mat, input_name, chisq = F, test_args = list())
 }
 \arguments{
 \item{input_mat}{the input matrix}
 
 \item{input_name}{the name of the names(features and rownames of the output)}
+
+\item{chisq}{whether using chisq.test,default: FALSE}
+
+\item{test_args}{args passing to fisher.test or chisq.test}
 }
 \value{
 data.frame summary of fisher.test results

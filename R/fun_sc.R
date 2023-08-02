@@ -438,3 +438,40 @@ fun_sc_cellchat_plot <- function(
 }
 
 
+
+
+#' Seurat obj signature deconvolution usingUCell
+#'
+#' @param input_seurat the Seurat object
+#' @param input_list  signature list, must has name
+#' @param ucell_params parmaters passing to AddModuleScore_UCell
+#'
+#' @return Seurat obj with signature deconvoluted
+#' @export
+#'
+fun_sc_seurat_ucell <- function(
+    input_seurat,
+    input_list,
+    ucell_params = list(name = "")){
+  suppressMessages({
+    library(UCell)
+  })
+
+  # 1) get signature name
+  signature.names <- names(input_list)
+
+  # 2) check if all in single cell data, not run
+  check_index = purrr::map_lgl(signature.names,function(x) x %in% colnames(input_seurat@meta.data))
+  if(all(check_index)){
+    message("all found, skip the step")
+  }else{
+    input_list = input_list[!check_index]
+    message(paste0("Found ",sum(check_index),", remain " ,length(input_list)," to be done!"))
+    ucell_params$obj = input_seurat
+    ucell_params$features = input_list
+    input_seurat = do.call(AddModuleScore_UCell,ucell_params)
+  }
+
+  return(input_seurat)
+}
+

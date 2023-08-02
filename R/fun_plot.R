@@ -15,14 +15,22 @@ fun_plot_bar_pval = function(input_df,
                              input_ys,
                              palette = "jco",
                              bar_width = 0.3,
-                             tn = tn_bar()){
+                             tn = tn_bar(),
+                             chisq=F,
+                             fun_stat_fisher_by_column_args = list()){
   # 1) barplot for input_xs and input_ys_respectively
   purrr::map(input_xs,function(x){
     purrr::map(input_ys,function(y){
       data_new  = data.frame(x = input_df[[x]],
                              y = input_df[[y]])
       data_new = na.omit(data_new)
-      pval = fun_stat_fisher_by_column(data_new,"x","y")
+      #pval = fun_stat_fisher_by_column(data_new,"x","y")
+      fun_stat_fisher_by_column_args$input_df = data_new
+      fun_stat_fisher_by_column_args$input_xs = "x"
+      fun_stat_fisher_by_column_args$input_ys = "y"
+      fun_stat_fisher_by_column_args$chisq = chisq
+      pval = do.call(fun_stat_fisher_by_column,
+                     fun_stat_fisher_by_column_args)
       pval = pval$pval
       x_length = length(unique(data_new$x))
       ggplot2::ggplot(data_new,aes(x,fill = y))+
@@ -36,6 +44,9 @@ fun_plot_bar_pval = function(input_df,
         ggpubr::fill_palette(palette)
     })
   }) -> p_list
+  if(length(input_ys) == 1){
+    p_list = unlist(p_list,recursive = F)
+  }
   if(length(input_xs) == 1){
     p_list = p_list[[1]]
   }

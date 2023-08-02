@@ -4,12 +4,21 @@
 \alias{fun_stat_fisher_by_row}
 \title{Fisher test by row}
 \usage{
-fun_stat_fisher_by_row(input_df, input_abcd = c(2, 3, 4, 5))
+fun_stat_fisher_by_row(
+  input_df,
+  input_abcd = c(2, 3, 4, 5),
+  chisq = F,
+  fun_stat_fisher_mat_args = list()
+)
 }
 \arguments{
 \item{input_df}{input_data}
 
 \item{input_abcd}{the abcd column}
+
+\item{chisq}{whether using chisq.text,defulat: FALSE}
+
+\item{fun_stat_fisher_mat_args}{fun_stat_fisher_mat_args}
 }
 \value{
 data.frame which appedn the or, ci_low, ci_up, pval column
