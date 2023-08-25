@@ -6,7 +6,7 @@
 \alias{biodf-package}
 \title{biodf: A collection of commonly used function in omics data analysis.}
 \description{
-
+A collection of commonly used function in omics data analysis. To use this tools, you just need to understand basic R,like data.frame, matrix,list,etc.For each analysis, you just need to know what you are going to do, like t.test,differential expression analysis, etc.
 }
 \author{
 \strong{Maintainer}: Qiangqiang Sun \email{sunkeke1993@gmail.com}

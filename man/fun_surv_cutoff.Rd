@@ -34,5 +34,9 @@ Group numeric variables into high-low groups, based on the cutoff(Lower side inc
 }
 \examples{
 data(tcga_clin)
-clin_group = fun_surv_cutoff(tcga_clin,input_variables="age",output_variables_names = "Group",input_pct = 0.5)
+clin_group = fun_surv_cutoff(
+  tcga_clin,
+  input_variables="age",
+  output_variables_names = "Group",
+  input_pct = 0.5)
 }

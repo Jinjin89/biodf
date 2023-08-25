@@ -6,8 +6,8 @@
 \usage{
 fun_stat_compare_means(
   input_df,
-  input_variables,
   input_groups = "Group",
+  input_variables = NULL,
   fun = "kruskal.test",
   fun_sum = "median"
 )
@@ -15,9 +15,9 @@ fun_stat_compare_means(
 \arguments{
 \item{input_df}{input data.frame}
 
-\item{input_variables}{input variables}
-
 \item{input_groups}{input groups}
+
+\item{input_variables}{input variables}
 
 \item{fun}{test function, like \code{t.test}, \code{wilcox.test},\code{kruskal.test}}
 

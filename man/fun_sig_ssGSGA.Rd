@@ -4,14 +4,16 @@
 \alias{fun_sig_ssGSGA}
 \title{ssGSEA analysis for input_mat using input_genes_list, the results would be saved as outfile}
 \usage{
-fun_sig_ssGSGA(input_mat, input_genes_list, outfile)
+fun_sig_ssGSGA(input_mat, input_genes_list, outfile, rds = F)
 }
 \arguments{
 \item{input_mat}{input_mat}
 
 \item{input_genes_list}{input_genes_list}
 
-\item{outfile}{}
+\item{outfile}{outfile}
+
+\item{rds}{whether save as rds}
 }
 \value{
 data.frame

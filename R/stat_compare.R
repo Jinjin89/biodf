@@ -11,7 +11,17 @@
 #' @export
 #'
 #' @examples
-fun_stat_compare_means = function(input_df,input_variables,input_groups="Group",fun = "kruskal.test",fun_sum = "median"){
+fun_stat_compare_means = function(input_df,input_groups="Group",input_variables=NULL,fun = "kruskal.test",fun_sum = "median"){
+  if(length(input_variables) == 0){
+    message("Input variables not found")
+    numeric_columns = purrr::map_lgl(input_df,is.numeric)
+    input_variables = colnames(input_df)[numeric_columns]
+    message(paste0("Found: ",length(input_variables)))
+  }else{
+    message(paste0("Input variables: ",length(input_variables)))
+    input_variables = intersect(input_variables,colnames(input_df))
+    message(paste0("found variables: ",length(input_variables)))
+  }
   # 1) for loop for all the groups
   purrr::map(input_groups,function(each_group){
     # 2) then loop the variables, calculate the variable in each group

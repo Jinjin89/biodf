@@ -12,7 +12,11 @@
 #'
 #' @examples
 #' data(tcga_clin)
-#' clin_group = fun_surv_cutoff(tcga_clin,input_variables="age",output_variables_names = "Group",input_pct = 0.5)
+#' clin_group = fun_surv_cutoff(
+#'   tcga_clin,
+#'   input_variables="age",
+#'   output_variables_names = "Group",
+#'   input_pct = 0.5)
 fun_surv_cutoff = function(
     input_df,
     input_variables = "Risk_score",

@@ -2,31 +2,33 @@
 #'
 #' @param input_mat input_mat
 #' @param input_genes_list input_genes_list
-#' @param outfile
+#' @param outfile outfile
+#' @param rds whether save as rds
 #'
 #' @return data.frame
 #' @export
 #'
 #' @examples
-fun_sig_ssGSGA = function(
-    input_mat,
-    input_genes_list,
-    outfile){
-  if(!file.exists(outfile)){
-    gsea_out = GSVA::gsva(
-      input_mat,
-      input_genes_list,
-      method="ssgsea",
-      kcdf="Gaussian",
-      abs.ranking=TRUE,
-      verbose=FALSE)
-    gsea_out = data.frame(t(gsea_out))
-    gsea_out = dplyr::mutate_all(gsea_out,scale)
-    gsea_out = dplyr::mutate_all(gsea_out,as.numeric)
-    write.csv(gsea_out,outfile)
-  }
 
-  return(read.csv(outfile,row.names = 1))
+fun_sig_ssGSGA <- function (input_mat, input_genes_list, outfile,rds=F)
+{
+  if (!file.exists(outfile)) {
+    gsea_out = GSVA::gsva(input_mat, input_genes_list, method = "ssgsea",
+                          kcdf = "Gaussian", abs.ranking = TRUE, verbose = FALSE)
+    gsea_out = data.frame(t(gsea_out),check.names = F)
+    gsea_out = dplyr::mutate_all(gsea_out, scale)
+    gsea_out = dplyr::mutate_all(gsea_out, as.numeric)
+    if(rds){
+      saveRDS(gsea_out,outfile)
+    }else{
+      data.table::fwrite(gsea_out,file = outfile,row.names = T,quote = T)
+    }
+  }
+  if(rds){
+    readRDS(outfile)
+  }else{
+    return(read.csv(outfile,row.names = 1,check.names = F))
+  }
 }
 
 #' Calculated the weight sum of the given input coefficients
