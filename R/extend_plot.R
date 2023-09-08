@@ -9,6 +9,8 @@
 #' @param row_split which data in input_y to split row
 #' @param left_col left annotation color
 #' @param hm_col hm_col map
+#' @param return_plot_list return list
+#' @param input_is_cor if the results were genrated by [fun_stat_cor]
 #'
 #' @return NULL
 #' @export
@@ -16,21 +18,28 @@
 #' @examples
 fun_extend_plot_heatmap_cor <- function(
     input_df,
-    input_x,
-    input_y,
+    input_x=NULL,
+    input_y=data.frame(),
+    input_is_cor=F,
     method=  "sp",
     fontsize = 5,
     row_names_gp = gpar(cex = 0.5,fontface = "italic"),
     row_split = 1,
     left_col = NULL,
-    hm_col = circlize::colorRamp2(breaks = c(-1,0,1),colors = c("blue","white","red"))){
+    hm_col = circlize::colorRamp2(breaks = c(-1,0,1),colors = c("blue","white","red")),
+    return_plot_list = F){
 
 
   # 1) get correlation
-  cor_res = fun_stat_cor(input_df,input_x,rownames(input_y),method = method) %>%
-    mutate(p_sig = fun_utils_p2star(pval))
-  rownames(cor_res) = cor_res$y
-  print(cor_res)
+  if(input_is_cor){
+    cor_res = input_df
+  }else{
+    cor_res = fun_stat_cor(input_df,input_x,rownames(input_y),method = method) %>%
+      mutate(p_sig = fun_utils_p2star(pval))
+    rownames(cor_res) = cor_res$y
+
+  }
+
 
 
   # 2) hm
@@ -59,7 +68,7 @@ fun_extend_plot_heatmap_cor <- function(
   }
 
   if(length(row_split) == 0){
-    row_split = split
+    row_split = NULL
   }else{
     row_split = input_y[[row_split]]
   }
@@ -94,7 +103,10 @@ fun_extend_plot_heatmap_cor <- function(
     row_names_gp = row_names_gp,
     row_split = row_split
   )
-
-  draw(p1+p2)
+  if(return_plot_list){
+    list(p1,p2)
+  }else{
+    draw(p1+p2)
+  }
 
 }

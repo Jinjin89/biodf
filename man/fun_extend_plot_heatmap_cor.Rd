@@ -6,14 +6,16 @@
 \usage{
 fun_extend_plot_heatmap_cor(
   input_df,
-  input_x,
-  input_y,
+  input_x = NULL,
+  input_y = data.frame(),
+  input_is_cor = F,
   method = "sp",
   fontsize = 5,
   row_names_gp = gpar(cex = 0.5, fontface = "italic"),
   row_split = 1,
   left_col = NULL,
-  hm_col = circlize::colorRamp2(breaks = c(-1, 0, 1), colors = c("blue", "white", "red"))
+  hm_col = circlize::colorRamp2(breaks = c(-1, 0, 1), colors = c("blue", "white", "red")),
+  return_plot_list = F
 )
 }
 \arguments{
@@ -22,6 +24,8 @@ fun_extend_plot_heatmap_cor(
 \item{input_x}{x}
 
 \item{input_y}{data.frame, rownames should be in input_df}
+
+\item{input_is_cor}{if the results were genrated by \link{fun_stat_cor}}
 
 \item{method}{sp or p}
 
@@ -34,6 +38,8 @@ fun_extend_plot_heatmap_cor(
 \item{left_col}{left annotation color}
 
 \item{hm_col}{hm_col map}
+
+\item{return_plot_list}{return list}
 }
 \description{
 Plot heatmap with pvalue along the side

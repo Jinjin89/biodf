@@ -25,6 +25,7 @@ fun_read_cbio = function(input_clin=NULL,input_expr=NULL,input_maf =NULL){
     expr_tmp = data.table::fread(input_expr)
     expr_tmp = as.data.frame(expr_tmp)
     expr_tmp = expr_tmp[!duplicated(expr_tmp[[1]]),]
+    expr_tmp = expr_tmp[!is.na(expr_tmp[[1]]),]
     rownames(expr_tmp) = expr_tmp[[1]]
     expr_tmp = expr_tmp[,-c(1,2)]
     expr_tmp = as.matrix(expr_tmp)

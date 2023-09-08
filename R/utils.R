@@ -68,6 +68,18 @@ tn_bar = function(show_axis_title=F,legend_text = 6,...){
 }
 
 
+#' No legend
+#'
+#' @param ... pass to ggplot theme function
+#'
+#' @return
+#' @export
+#'
+tn_no_legend <- function(...){
+  ggplot2::theme(legend.position = "none",...)
+}
+
+
 #' Using DT to print data.rame
 #'
 #' @param input_df input_data_frame
@@ -153,8 +165,6 @@ fun_utils_p2star = function(input_pval,ns = ""){
   })
 }
 
-
-
 #' eval the results
 #'
 #' @param input_texts the text inputs
@@ -185,6 +195,7 @@ fun_utils_eval = function(input_texts){
 #'
 #' @examples
 fun_utils_mat_filter = function(input_mat,zero_pct=0.2,na_pct = NULL,qn = F){
+  .Deprecated("fun_mat_filter")
   if(!is.null(zero_pct)){
     # do zero pct
     zero_vaue = min(input_mat)
@@ -205,8 +216,6 @@ fun_utils_mat_filter = function(input_mat,zero_pct=0.2,na_pct = NULL,qn = F){
 
   input_mat
 }
-
-
 
 
 #' If the strins is to loner, say, 50 character, we would like to insert a new line into the strings, so that it could be printed beatifully
@@ -245,23 +254,6 @@ fun_utils_insert_newline_for_long_stings = function(
   })
 
 }
-
-
-
-#' reinstall
-#'
-#' @param ...
-#'
-#' @export
-
-fun_util_reinstall = function(...){
-  detach("package:biodf")
-  remove.packages("biodf")
-  install.packages("~/data/project/pj/biodf_0.0.0.1.tar.gz",repos = NULL)
-  .rs.restartR()
-  require(biodf)
-}
-
 
 #' Get colors
 #'

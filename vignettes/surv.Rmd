@@ -16,14 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ```{r setup}
-library(biodf)
 
-table(tcga_clin$stage)
+if(!require(biodata)) {
+  devtools::install_github("Jinjin89/biodata")
+  library(biodata)
+}
 
-table(tcga_clin$Age_group)
-
-summary(tcga_clin$age)
+table(tcga_clin_xena$stage)
+table(tcga_clin_xena$Age_group)
+summary(tcga_clin_xena$age)
 
 
 ```
@@ -50,7 +53,7 @@ what is has?
 input_variables =  c("age")
 output_variables_names = c("age_group")
 
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_cutoff(
     input_variables =input_variables,
     output_variables_names = output_variables_names,
@@ -58,7 +61,7 @@ tcga_clin %>%
   count(age_group)
 
 # is isnull pct, do nothing
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_cutoff(
     input_variables =input_variables,
     output_variables_names = output_variables_names,
@@ -73,7 +76,7 @@ tcga_clin %>%
 
 # if data is character, calculate themee logrank
 
-tcga_clin %>% 
+tcga_clin_xena %>% 
     fun_surv_cutoff(
     input_variables =input_variables,
     output_variables_names = output_variables_names,
@@ -82,11 +85,11 @@ tcga_clin %>%
     input_variables = output_variables_names)
 
 # if data is numeric, do not calculate km 
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_unicox(
     input_variables = input_variables)
 
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_unicox(
     input_variables = input_variables,
     input_pct = 0.5)
@@ -94,13 +97,13 @@ tcga_clin %>%
 
 
 # 3) data with more than two groups
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_unicox(
     input_variables = "stage")
 
 
 # 4) unicox analysis
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_unicox(
     input_variables = c(input_variables,"stage")
   )
@@ -111,7 +114,7 @@ tcga_clin %>%
 ## multicox analysis
 
 ```{r multicox}
-tcga_clin %>% 
+tcga_clin_xena %>% 
   fun_surv_multicox(
     input_variables = c(input_variables,"stage")
   )
@@ -125,14 +128,14 @@ you only need input variables, and data.frame with time,status,<variables>
 
 ```{r kmplot}
 
-tcga_clin %>% 
+tcga_clin_xena %>% 
   head(100) %>% 
   # mutate(stage = factor(stage,levels = c("STAGE III","STAGE II","STAGE IV"))) %>% 
   fun_plot_surv_km(input_variables = "stage")
 
 
 # cutoff age
-tcga_clin %>% 
+tcga_clin_xena %>% 
   head(100) %>% 
   fun_plot_surv_km(
     input_variables = "age",
@@ -155,7 +158,7 @@ if `merge_roc_auc` is `FALSE`, The output would be also a list, which contains t
 
 # merge the output into two dataframe
 res = 
-  tcga_clin %>% 
+  tcga_clin_xena %>% 
   head() %>% 
   fun_surv_roc(
     input_variables = input_variables,
@@ -167,7 +170,7 @@ res$auc %>% head
 
 # Not merge 
 res = 
-  tcga_clin %>% 
+  tcga_clin_xena %>% 
   head() %>% 
   fun_surv_roc(
     input_variables = input_variables,
