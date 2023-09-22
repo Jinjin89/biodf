@@ -48,5 +48,5 @@ fun_dmr_champ(
 list with differntial expressed genes
 }
 \description{
-Differential Methylation Region(DMR) using ChAMP
+https://www.bioconductor.org/packages/release/bioc/vignettes/ChAMP/inst/doc/ChAMP.html
 }

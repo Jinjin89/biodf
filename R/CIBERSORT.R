@@ -63,12 +63,15 @@ CoreAlg <- function(X, y, absolute, abs_method){
     if(i==1){nus <- 0.25}
     if(i==2){nus <- 0.5}
     if(i==3){nus <- 0.75}
-    model<-svm(X,y,type="nu-regression",kernel="linear",nu=nus,scale=F)
+    model<-e1071::svm(X,y,type="nu-regression",kernel="linear",nu=nus,scale=F)
     model
   }
 
-  if(Sys.info()['sysname'] == 'Windows') out <- mclapply(1:svn_itor, res, mc.cores=1) else
-    out <- mclapply(1:svn_itor, res, mc.cores=svn_itor)
+  if(Sys.info()['sysname'] == 'Windows'){
+    out <- lapply(1:svn_itor, res)
+    }else{
+      out <- lapply(1:svn_itor, res)
+    }
 
   nusvm <- rep(0,svn_itor)
   corrv <- rep(0,svn_itor)
@@ -183,7 +186,7 @@ CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute
   #read in data
   X<- sig_matrix
   # X <- read.table(sig_matrix,header=T,sep="\t",row.names=1,check.names=F)
-  Y <- rownames_to_column(mixture_file,var = "symbol")
+  Y <- tibble::rownames_to_column(as.data.frame(mixture_file),var = "symbol")
   #to prevent crashing on duplicated gene symbols, add unique numbers to identical names
   dups <- dim(Y)[1] - length(unique(Y[,1]))
   if(dups > 0) {
@@ -209,7 +212,7 @@ CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute
   if(QN == TRUE){
     tmpc <- colnames(Y)
     tmpr <- rownames(Y)
-    Y <- normalize.quantiles(Y)
+    Y <- preprocessCore::normalize.quantiles(Y)
     colnames(Y) <- tmpc
     rownames(Y) <- tmpr
   }

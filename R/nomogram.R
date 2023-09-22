@@ -106,7 +106,6 @@ fun_nomogram_logit <- function(input_df,input_variables,input_y,
           input_variables = input_variables,
           input_y = input_y
         )
-
     }
     return(return_list)
   }

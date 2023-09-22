@@ -4,19 +4,27 @@
 \alias{fun_mat_filter}
 \title{expression filter and/or quantitle normalization by row, if you want to do it by column, trannpose it and then transpose back}
 \usage{
-fun_mat_filter(input_mat, zero_pct = 0.2, na_pct = NULL, qn = F)
+fun_mat_filter(
+  input_mat,
+  zero_pct = 0.2,
+  na_pct = NULL,
+  qn = F,
+  qn_args = list(keep.names = TRUE)
+)
 }
 \arguments{
 \item{input_mat}{input_mat}
 
-\item{zero_pct}{zero_pct\link{0,1}}
+\item{zero_pct}{zero_pct,values should be in 0,1}
 
-\item{na_pct}{na_pct \link{0,1}}
+\item{na_pct}{na_pct values should be in 0,1}
 
 \item{qn}{quantitle.normalzation by preprocess core}
+
+\item{qn_args}{args for quantile normalization}
 }
 \value{
-filtered matrix
+filtered/normalized matrix
 }
 \description{
 expression filter and/or quantitle normalization by row, if you want to do it by column, trannpose it and then transpose back

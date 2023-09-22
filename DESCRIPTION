@@ -3,7 +3,7 @@ Title: A collection of commonly used function in omics data analysis.
 Version: 0.0.1.0
 Authors@R: 
     person("Qiangqiang", "Sun", , "sunkeke1993@gmail.com", role = c("aut", "cre"))
-Description: A collection of commonly used function in omics data analysis. To use this tools, you just need to understand basic R,like data.frame, matrix,list,etc.For each analysis, you just need to know what you are going to do, like t.test,differential expression analysis, etc.
+Description: A collection of commonly used function in omics data analysis.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -11,6 +11,7 @@ RoxygenNote: 7.2.3
 Imports: 
     decoupleR,
     DT,
+    furrr,
     glmnet,
     impute,
     janitor,
@@ -30,7 +31,6 @@ Depends:
     data.table,
     dplyr,
     magrittr
-LazyData: true
 Suggests: 
     knitr,
     rmarkdown

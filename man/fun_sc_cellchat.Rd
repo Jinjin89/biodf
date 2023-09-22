@@ -9,6 +9,7 @@ fun_sc_cellchat(
   cellchat_rds,
   group.by = "cell_type",
   cell_search = "Secreted Signaling",
+  plan = "multisession",
   workers = 4
 )
 }
@@ -20,6 +21,8 @@ fun_sc_cellchat(
 \item{group.by}{cellchat idents}
 
 \item{cell_search}{cell db use}
+
+\item{plan}{multisession or ...}
 
 \item{workers}{parrallel}
 }

@@ -344,6 +344,7 @@ fun_sc_seurat_progeny <- function(input_seurat,
 #' @param group.by cellchat idents
 #' @param cell_search cell db use
 #' @param workers parrallel
+#' @param plan multisession or ...
 #'
 #' @return cellchat obj
 #' @export
@@ -353,6 +354,7 @@ fun_sc_cellchat <- function(input_sc,
                             cellchat_rds,
                             group.by = "cell_type",
                             cell_search = "Secreted Signaling",
+                            plan = "multisession",
                             workers = 4){
   if(!file.exists(cellchat_rds)){
     print("the cellchat obj not found, build it")
@@ -360,6 +362,7 @@ fun_sc_cellchat <- function(input_sc,
     # 1)
     require(CellChat)
     require(parallel)
+    require(future)
 
     # 2) prepare cellchat data
     cellchat <- createCellChat(
@@ -387,7 +390,8 @@ fun_sc_cellchat <- function(input_sc,
 
     # 5)
     cellchat <- subsetData(cellchat) # This step is necessary even if using the whole database
-    future::plan("multiprocess", workers = workers) # do parallel
+    future::plan(future::sequential) # reset the plan with sequentail
+    future::plan(plan, workers = workers) # do parallel
 
     # 6) get overexpressed genes
     cellchat <- identifyOverExpressedGenes(cellchat)

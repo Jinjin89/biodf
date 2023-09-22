@@ -97,6 +97,9 @@ fun_deg_cutoff = function(input_df,
 
 #' Differential Methylation Region(DMR) using ChAMP
 #'
+#' @description
+#' https://www.bioconductor.org/packages/release/bioc/vignettes/ChAMP/inst/doc/ChAMP.html
+#'
 #' @param input_df pd
 #' @param input_matrix beta
 #' @param outfile outfile
@@ -116,24 +119,26 @@ fun_deg_cutoff = function(input_df,
 #' @examples
 fun_dmr_champ <-  function(input_df,input_matrix,
 
-                           # save the DMR results
-                           outfile,
+                                # save the DMR results
+                                outfile,
 
-                           # clinical features params
-                           input_group="Group",
-                           input_sample = "sample",
-                           input_batch = NULL,
+                                # clinical features params
+                                input_group="Group",
+                                input_sample = "sample",
+                                input_batch = NULL,
 
-                           # DMR params
-                           filterXY = F,
-                           arraytype="450K",
-                           cores = 2,
-                           method ="BMIQ",
-                           adjPVal = 0.05,
-                           compare.group = c("normal","cancer")
+                                # DMR params
+                                filterXY = F,
+                                arraytype="450K",
+                                cores = 2,
+                                method ="BMIQ",
+                                adjPVal = 0.05,
+                                compare.group = c("normal","cancer")
 ){
 
   # if not found the results
+  library(ChAMP)
+  library(ChAMPdata)
   if(!file.exists(outfile)){
     message(paste0(outfile," not found, performing DMR using ChAMP!"))
     # 1) get new clinical data
@@ -180,6 +185,16 @@ fun_dmr_champ <-  function(input_df,input_matrix,
       cores=cores,
       method = method)
 
+    # 3.4) batch effect
+    if(length(input_batch)!= 0){
+      message("run combat")
+      myNorm =
+        ChAMP::champ.runCombat(
+          beta = myNorm,
+          pd = myLoad$pd,
+          variablename = input_group,
+          batchname = input_batch)
+    }
     # 04) DMP
     myDMP <- ChAMP::champ.DMP(
       beta = myNorm,
