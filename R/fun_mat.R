@@ -55,8 +55,8 @@ fun_mat_norm <- function(input_mat,method =c("scale","min-max","towards"),axis=1
                          fun_norm_scale_args = list(),
                          fun_norm_minmax_args = list(),
                          fun_norm_substract_args = list()){
-  stopifnot("input_mat shold be matrix" == is.matrix(input_mat))
-  stopifnot("axis only support 0 and 1" == axis %in% c(0,1))
+  stopifnot("input_mat shold be matrix" = (is.matrix(input_mat)))
+  stopifnot("axis only support 0 and 1" = (axis %in% c(0,1)))
   # 1) choose the methods
   method = match.arg(method,c("scale","min-max","towards"))
 
@@ -128,44 +128,59 @@ fun_mat_norm <- function(input_mat,method =c("scale","min-max","towards"),axis=1
 }
 
 
+#' reanmes genes number into symbols
+#'
+#' @param input_mat the input matrix
+#' @param fun_gene2symbol_args the argument passing tp fun_gene2symbol from biodata
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
+  # 1) get the matrix rownames
+  matrix_rownames <- rownames(input_mat)
+  message("How many genes input: ",length(matrix_rownames))
+  fun_gene2symbol_args$input_genes <- matrix_rownames
 
-fun_mat_bind_rows <- function(x,y,keep = c("all","x","y"),x_name = "_x",y_name = "_y",fill_value=NA){
-  message("this function could be extremly slow using bigger data, as it use for loop to access each element")
-  stopifnot("all types of x and y should be eaqul" = (all(typeof(x) == typeof(y))))
-  stopifnot("x and y should be matrix,and should have names,if no name avaiable, use rbind or cbind" = (is.matrix(x) && is.matrix(y) && (!is.null(names(x))) && (!is.null((names(y))))))
-  keep = match.arg(keep, c("all","x","y"))
+  # 2) convert the genes into symbol
+  suppressMessages({
+    gene_map_df <- do.call(biodata::fun_gene2symbol,
+                           fun_gene2symbol_args) %>%
+      dplyr::filter(!is.na(symbol))
+  })
+  message("How many records kept: ",nrow(gene_map_df))
+  message("How many records kept(unique,final matrix output row length): ",
+          length(unique(gene_map_df$symbol)))
+  symbols_count <- gene_map_df %>%
+    dplyr::count(symbol) %>%
+    as.data.frame() %>%
+    magrittr::set_rownames(.$symbol)
 
-  # 1) get rownames
-  x_rowname = rownames(x)
-  y_rowname = rownames(y)
+  # 3) get the symbol uniquely found
+  symbol_kept_unique <- gene_map_df %>%
+    mutate(symbol_count = symbols_count[.$symbol,"n"]) %>%
+    dplyr::filter(symbol_count == 1 | alias_is_symbol)
 
-  x_colname = colnames(x)
-  y_colname = colnames(y)
-  common_row_names =  dplyr::intersect(x_rowname,y_rowname) # used for generating new file
+  mat1 <- input_mat[rownames(symbol_kept_unique),]
+  rownames(mat1) <- symbol_kept_unique$symbol
 
-  # 3) how to select data
-  if(keep == "all"){
-    message("keep all the data in x and y")
-    if(length(common_row_names) == 0){
-      message("no duplicated data found")
-      row_names = c(x_rowname,y_rowname)
-      col_names = c(x_colname,y_colname)
-      # init data
-    }else{
-      message("duplicated data found")
-    }
-
-  }else if(keep =="x"){
-    message("keep all the data in the x, append new data in y at the bottom")
-
-  }else if(keep == "y"){
-
-  }else{
-    stop("wrong arguments")
-  }
-}
-
-
-fun_mat_bind_cols <- function(x,y,keep = c("all","x","y")){
-
+  # 4)
+  symbol_multiple_parsing <-
+    gene_map_df %>%
+    dplyr::filter(!symbol %in% symbol_kept_unique$symbol)
+  gene_map_info <- apply(input_mat[rownames(symbol_multiple_parsing),],1,sum,na.rm=T)
+  message("How many genes with duplicated symbols: ",nrow(symbol_multiple_parsing))
+  gene_multi_summary_info <-
+    symbol_multiple_parsing %>%
+    dplyr::mutate(gene_summary = gene_map_info[rownames(.)]) %>%
+    dplyr::group_by(symbol) %>%
+    dplyr::arrange(dplyr::desc(gene_summary),.by_group = T) %>%
+    dplyr::do(head(.,1)) %>%
+    as.data.frame() %>%
+    set_rownames(.$alias)
+  message("How many symbols are mapped duplicatedly: ",nrow(gene_multi_summary_info))
+  mat2 <-  input_mat[rownames(gene_multi_summary_info),]
+  rownames(mat2) <- gene_multi_summary_info$symbol
+  return(rbind(mat1,mat2[,colnames(mat1)]))
 }

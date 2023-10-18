@@ -2,53 +2,13 @@
 % Please edit documentation in R/fun_surv.R
 \name{fun_plot_surv_km}
 \alias{fun_plot_surv_km}
-\title{survival analysis}
+\title{same as fun_surv_km}
 \usage{
-fun_plot_surv_km(
-  input_df,
-  input_variables = "Group",
-  input_pct = NULL,
-  palette = "jco",
-  title = NULL,
-  risk_tables = T,
-  tables.theme = ggplot2::theme(plot.title = ggplot2::element_blank()),
-  ggtheme = tn(),
-  conf.int = F,
-  xlab = "Months",
-  pval = T,
-  ...
-)
+fun_plot_surv_km(...)
 }
 \arguments{
-\item{input_df}{input data frame}
-
-\item{input_variables}{input variables}
-
-\item{palette}{color palette for KM}
-
-\item{title}{KM plot showing title}
-
-\item{risk_tables}{whether showing the risk tables}
-
-\item{tables.theme}{the themes for the table}
-
-\item{ggtheme}{the theme for all the}
-
-\item{conf.int}{whether showing the the confident ribbon}
-
-\item{xlab}{xlab}
-
-\item{pval}{whether showing the pval}
-
-\item{...}{others params passing into the \code{ggsurvplot}}
-}
-\value{
-ggsurvplot obj
+\item{...}{passing to fun_surv_km}
 }
 \description{
-survival analysis
-}
-\examples{
-data(tcga_clin)
-fun_plot_surv_km(head(tcga_clin,100),"Age_group")
+same as fun_surv_km
 }

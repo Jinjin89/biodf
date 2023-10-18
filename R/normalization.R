@@ -10,11 +10,15 @@
 #' @examples
 fun_norm_scale <- function(input_numeric,scale_args = list()){
   dims <- dim(input_numeric)
+  input_rownames = rownames(input_numeric)
+  input_colnames = colnames(input_numeric)
   scale_args$x <- input_numeric
   input_numeric <- do.call("scale",scale_args)
   attr(input_numeric,"scaled:center") <- NULL
   attr(input_numeric,"scaled:scale") <- NULL
   dim(input_numeric) <- dims
+  rownames(input_numeric) <- input_rownames
+  colnames(input_numeric) <- input_colnames
   return(input_numeric)
 }
 

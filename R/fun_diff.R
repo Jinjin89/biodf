@@ -210,6 +210,7 @@ fun_dmr_champ <-  function(input_df,input_matrix,
            DMP = myDMP)
     res %>%
       saveRDS(outfile)
+    future::plan(future::sequential) # reset the multithreading with sequential
   }
   invisible(readRDS(outfile))
 }

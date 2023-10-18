@@ -7,6 +7,7 @@
 fun_sc_cellchat(
   input_sc,
   cellchat_rds,
+  cellchat_db = NULL,
   group.by = "cell_type",
   cell_search = "Secreted Signaling",
   plan = "multisession",
@@ -17,6 +18,8 @@ fun_sc_cellchat(
 \item{input_sc}{Seurat obj}
 
 \item{cellchat_rds}{the output file used to save results}
+
+\item{cellchat_db}{cell db}
 
 \item{group.by}{cellchat idents}
 

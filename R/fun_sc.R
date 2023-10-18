@@ -341,6 +341,7 @@ fun_sc_seurat_progeny <- function(input_seurat,
 #'
 #' @param input_sc Seurat obj
 #' @param cellchat_rds the output file used to save results
+#' @param cellchat_db cell db
 #' @param group.by cellchat idents
 #' @param cell_search cell db use
 #' @param workers parrallel
@@ -352,6 +353,7 @@ fun_sc_seurat_progeny <- function(input_seurat,
 #' @examples
 fun_sc_cellchat <- function(input_sc,
                             cellchat_rds,
+                            cellchat_db = NULL,
                             group.by = "cell_type",
                             cell_search = "Secreted Signaling",
                             plan = "multisession",
@@ -378,14 +380,21 @@ fun_sc_cellchat <- function(input_sc,
     # 4) get db
     CellChatDB <- CellChatDB.human # use CellChatDB.mouse if running on mouse data
     showDatabaseCategory(CellChatDB)
-    if(length(cell_search) == 0 ){
-      print("using default cellChatDB")
-      CellChatDB.use <- CellChatDB # simply use the default CellChatDB
+    if(length(cellchat_db) == 0){
+      print("cellchat_db not supplied, using default db")
+      if(length(cell_search) == 0 ){
+        print("using default cellChatDB")
+        CellChatDB.use <- CellChatDB # simply use the default CellChatDB
+      }else{
+        print("Using subseted data:")
+        print(cell_search)
+        CellChatDB.use <- subsetDB(CellChatDB, search = cell_search)
+      }
     }else{
-      print("Using subseted data:")
-      print(cell_search)
-      CellChatDB.use <- subsetDB(CellChatDB, search = cell_search)
+      print("cellchat_db supplied, using supplied db")
+      CellChatDB.use =cellchat_db
     }
+
     cellchat@DB <- CellChatDB.use
 
     # 5)
@@ -417,32 +426,43 @@ fun_sc_cellchat <- function(input_sc,
 #'
 #' @param input_cellchat cell chat
 #' @param input_cell which cell to plot, NULL or cell types
+#' @param use_used count or weight
+#' @param netVisual_circle_args
 #'
 #' @return NULL
 #' @export
 #'
 #' @examples
-fun_sc_cellchat_plot <- function(
+
+fun_sc_cellchat_netVisual_circle <- function(
     input_cellchat,
-    input_cell = NULL){
+    input_cell = NULL,
+    use_used = "count",
+    netVisual_circle_args = list(weight.scale = T)){
 
   # 1) get group size
   groupSize <- as.numeric(table(input_cellchat@idents))
 
   # 2)
+  mat = input_cellchat@net[[use_used]]
   if(length(input_cell) == 0 ){
-    netVisual_circle(input_cellchat@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
+    netVisual_circle_args$net <- mat
+    netVisual_circle_args$vertex.weight = groupSize
+    netVisual_circle_args$edge.weight.max = max(mat)
+    #netVisual_circle_args$title.name = "Number of interactions"
+    do.call("netVisual_circle",netVisual_circle_args)
 
   }else{
-    mat <- input_cellchat@net$weight
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
     mat2[input_cell, ] <- mat[input_cell, ]
-    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), title.name = input_cell)
+    netVisual_circle_args$net <- mat2
+    netVisual_circle_args$vertex.weight = groupSize
+    netVisual_circle_args$edge.weight.max = max(mat)
+    #netVisual_circle_args$title.name = input_cell
+
+    do.call("netVisual_circle",netVisual_circle_args)
   }
 }
-
-
-
 
 #' Seurat obj signature deconvolution usingUCell
 #'

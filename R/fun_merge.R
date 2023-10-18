@@ -124,6 +124,11 @@ fun_merge_df = function(
         input_regex_found_var))
   }
 
+  if(length(input_final) == 0){
+    message("get all the data in the data.frame")
+    input_final = dplyr::setdiff(colnames(input_df_merge),df_merge_key)
+  }
+
   # 3) check the input_df_merge data
   stopifnot("df_merge_key not found in input_df_merge" = df_merge_key %in% colnames(input_df_merge))
   stopifnot("The merged variables not found in input_df_merge" = length(input_final)>0)

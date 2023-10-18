@@ -204,8 +204,8 @@ fun_surv_cutoff3 <- function(input_df,
 #'
 #' @examples
 #' data(tcga_clin)
-#' fun_plot_surv_km(head(tcga_clin,100),"Age_group")
-fun_plot_surv_km =function(
+#' fun_surv_km(head(tcga_clin,100),"Age_group")
+fun_surv_km <- function(
     input_df,
     input_variables = "Group",
     input_pct = NULL,
@@ -615,4 +615,83 @@ fun_surv_concordance = function(input_df,
     }
   }
   df_init
+}
+
+#' same as fun_surv_km
+#'
+#' @param ... passing to fun_surv_km
+#'
+#' @export
+#'
+fun_plot_surv_km <- function(...){
+  input_args = list(...)
+  do.call(fun_surv_km,input_args)
+}
+
+
+
+#' Plot unicox pvalues and HR with differnet cutoff
+#'
+#' @param input_df input_df
+#' @param input_variables input_variables
+#' @param input_pct input_pct,deafulat from 0.2 to 0.8 by 0.01
+#' @param axis_fold axis_fold is 2
+#' @param x_label x_label
+#' @param y_label y_label
+#' @param sec_y_axis_label sec_y_axis_label
+#' @param grid_color grid_color
+#' @param vline_lty vline_lty
+#' @param vline_color vline_color
+#' @param line_color line_color
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_plot_surv_cutoff <- function(input_df,
+                                 input_variables = "Risk_score",
+                                 input_pct = seq(0.2,0.8,0.01),
+                                 axis_fold = 2,
+                                 return_cutoff = F,
+                                 x_label = "Quantile(%)",
+                                 y_label = "P-value",
+                                 sec_y_axis_label = "Hazard ratio",
+                                 grid_color = "gray90",
+                                 vline_lty = "twodash",
+                                 vline_color = "#FF9B82",
+                                 line_color = c("#8BE8E5","#9400FF")
+                                 ){
+
+  df <-
+    purrr::map_df(seq(0.1,0.9,0.1),\(each_pct){
+      input_df %>%
+        fun_surv_cutoff(input_variables,input_variables,input_pct = each_pct) %>%
+        fun_surv_unicox(input_variables) %>%
+        dplyr::mutate(Quantile = each_pct * 100)
+    }) %>%
+    dplyr::select(Quantile,hr,pval) %>%
+    dplyr::mutate(hr = hr / axis_fold) %>%
+    tidyr::pivot_longer(-Quantile)
+
+  xintercept = df %>%
+    dplyr::filter(name == "pval") %>%
+    dplyr::filter(value == min(value)) %>%
+    dplyr::pull(Quantile)
+
+  df%>%
+    ggplot2::ggplot(ggplot2::aes(Quantile,value,group = name))+
+    ggplot2::geom_line(ggplot2::aes(color = name,lty = name))+
+    ggplot2::geom_point(ggplot2::aes(shape = name))+
+    tn()+
+    ggplot2::scale_y_continuous(
+      sec.axis = ggplot2::sec_axis(~.* axis_fold,name = sec_y_axis_label))+
+    ggplot2::theme(panel.grid.major = ggplot2::element_line(color =grid_color,linetype = "dashed"))+
+    ggplot2::geom_vline(xintercept = xintercept,lty = vline_lty,color = vline_color)+
+    ggplot2::scale_color_manual(values = line_color)+
+    ggplot2::labs(x = x_label, y = y_label) -> p
+  if(return_cutoff){
+    list(p = p, cutoff = xintercept)
+  }else{
+    p
+  }
 }

@@ -85,7 +85,7 @@ CoreAlg <- function(X, y, absolute, abs_method){
     u <- sweep(X,MARGIN=2,w,'*')
     k <- apply(u, 1, sum)
     nusvm[t] <- sqrt((mean((k - y)^2)))
-    corrv[t] <- cor(k, y)
+    corrv[t] <- stats::cor(k, y)
     t <- t + 1
   }
 
@@ -130,7 +130,7 @@ doPerm <- function(perm, X, Y, absolute, abs_method){
     yr <- as.numeric(Ylist[sample(length(Ylist),dim(X)[1])])
 
     #standardize mixture
-    yr <- (yr - mean(yr)) / sd(yr)
+    yr <- (yr - mean(yr)) / stats::sd(yr)
 
     #run CIBERSORT core algorithm
     result <- CoreAlg(X, yr, absolute, abs_method)
@@ -172,7 +172,7 @@ doPerm <- function(perm, X, Y, absolute, abs_method){
 #' cibersort<-CIBERSORT(sig_matrix = lm22, mixture_file = eset_ec, perm = 1000, QN=TRUE, absolute=FALSE)
 #' head(cibersort)
 
-CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute, abs_method='sig.score'){
+CIBERSORT <- function(sig_matrix = biodata::lm22, mixture_file, perm, QN = TRUE, absolute, abs_method='sig.score'){
 
 
   if (length(intersect(rownames(mixture_file), rownames(sig_matrix))) == 0){
@@ -219,7 +219,7 @@ CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute
 
   #store original mixtures
   Yorig <- Y
-  Ymedian <- max(median(Yorig),1)
+  Ymedian <- max(stats::median(Yorig),1)
 
   #intersect genes
   Xgns <- row.names(X)
@@ -230,7 +230,7 @@ CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute
   X <- X[XintY,]
 
   #standardize sig matrix
-  X <- (X - mean(X)) / sd(as.vector(X))
+  X <- (X - mean(X)) / stats::sd(as.vector(X))
 
   #empirical null distribution of correlation coefficients
   if(P > 0) {nulldist <- sort(doPerm(P, X, Y, absolute, abs_method)$dist)}
@@ -249,7 +249,7 @@ CIBERSORT <- function(sig_matrix = lm22, mixture_file, perm, QN = TRUE, absolute
     y <- Y[,itor]
 
     #standardize mixture
-    y <- (y - mean(y)) / sd(y)
+    y <- (y - mean(y)) / stats::sd(y)
 
     #run SVR core algorithm
     result <- CoreAlg(X, y, absolute, abs_method)
