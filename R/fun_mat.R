@@ -162,7 +162,7 @@ fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
     mutate(symbol_count = symbols_count[.$symbol,"n"]) %>%
     dplyr::filter(symbol_count == 1 | alias_is_symbol)
 
-  mat1 <- input_mat[rownames(symbol_kept_unique),]
+  mat1 <- input_mat[rownames(symbol_kept_unique),,drop=F]
   rownames(mat1) <- symbol_kept_unique$symbol
 
   # 4)
@@ -180,7 +180,7 @@ fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
     as.data.frame() %>%
     set_rownames(.$alias)
   message("How many symbols are mapped duplicatedly: ",nrow(gene_multi_summary_info))
-  mat2 <-  input_mat[rownames(gene_multi_summary_info),]
+  mat2 <-  input_mat[rownames(gene_multi_summary_info),,drop=F]
   rownames(mat2) <- gene_multi_summary_info$symbol
   return(rbind(mat1,mat2[,colnames(mat1)]))
 }

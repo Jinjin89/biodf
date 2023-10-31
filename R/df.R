@@ -17,7 +17,8 @@
 #'   from = c("MALE","FEMALE"),
 #'   to = c("M","F"),
 #'   new_name = "sex")
-fun_df_feature_map <- function(input_df,input_variables,from,to,new_name = NULL,not_found_replace = NA_character_){
+fun_df_feature_map <- function(input_df,input_variables,from,to,
+                               new_name = NULL,not_found_replace = NA_character_){
   # 1)
   stopifnot("Input length should be eaual" = (length(from) == length(to)))
 
@@ -44,6 +45,35 @@ fun_df_feature_map <- function(input_df,input_variables,from,to,new_name = NULL,
       ifelse(input_df[[new_name]] == from[i],to[i],input_df[[new_name]])
   }
   new_data = input_df[[new_name]]
-  print(table(old_data,new_data))
+  data.frame(old = old_data,new = new_data) %>%
+    dplyr::count(old,new) %>%
+    print
+  input_df
+}
+
+#' combine data.frame
+#'
+#' @param input_df data.frame
+#' @param input_variables input variables to collapse
+#' @param new_var new var name
+#' @param anno_mark the mark separate the variable name and value
+#' @param sep the mark separate the variables
+#'
+#' @return data.frame
+#' @export
+#'
+#' @examples
+fun_df_combine_columns <- function(input_df,input_variables,
+                                   new_var = "others",
+                                   anno_mark = ":",sep = ";"){
+  if(!new_var %in% colnames(input_df)){
+    input_df[[new_var]] = ""
+  }
+  for(each_var in input_variables){
+    data_tmp = paste0(each_var,anno_mark,input_df[[each_var]])
+    data_tmp = paste0(data_tmp,sep)
+    input_df[[new_var]] = paste0(input_df[[new_var]],data_tmp)
+  }
+  input_df[[new_var]]  = stringr::str_remove(input_df[[new_var]],paste0(sep,"$"))
   input_df
 }

@@ -426,3 +426,368 @@ fun_plot_boxplot <-function(input_df,input_x,input_y,palette="jco",
   }
   p_list
 }
+
+
+
+
+
+#' Heatmap plot with fill and p-value text
+#'
+#' @param input_cor_df correlation reults
+#' @param x x
+#' @param y y
+#' @param fill correlation
+#' @param text pval
+#' @param Heatmap_args other params passing to args
+#' @param Heatmap_args_additional additional args into heatmap
+#'
+#' @return heatmap plot
+#' @export
+#'
+#' @examples
+fun_plot_heatmap_tri <- function(
+    input_cor_df,x = "x",
+    y = "y",fill = "cor",text="p_sig",
+    Heatmap_args = list(
+      cluster_rows = F,
+      cluster_columns = F,
+      name = "correlation",
+      row_names_gp = gpar(fontsize = 8,fontface = "italic"),
+      column_names_gp = gpar(fontsize = 8,fontface = "plain"),
+      rect_gp = gpar(fill = "white",color = "gray"),
+      col = circlize::colorRamp2(
+        c(-0.5,0,0.5),colors = c(scales::muted("blue"),"white",scales::muted("red")))),
+    Heatmap_args_additional = list(),
+    hm_text_size = 7){
+
+  suppressMessages(require(circlize))
+  suppressMessages(require(ComplexHeatmap))
+
+  cor_matrix <-
+    input_cor_df %>%
+    pivot_wider(id_cols = !!as.name(y),
+                names_from = !!as.name(x),
+                values_from = !!as.name(fill)) %>%
+    as.data.frame() %>%
+    magrittr::set_rownames(.[[y]]) %>%
+    dplyr::select(-!!as.name(y))
+
+  # 3) p value text matrix
+  p_matrix <-
+    input_cor_df %>%
+    pivot_wider(id_cols = !!as.name(y),
+                names_from = !!as.name(x),
+                values_from = !!as.name(text)) %>%
+    as.data.frame() %>%
+    magrittr::set_rownames(.[[y]]) %>%
+    dplyr::select(-!!as.name(y))
+
+  # 4) rownames
+  col_labels = colnames(cor_matrix) %>% sort
+  row_labels = rownames(cor_matrix) %>% sort
+  cor_matrix = cor_matrix[row_labels,col_labels]
+  p_matrix = p_matrix[row_labels,col_labels]
+
+  if(length(names(Heatmap_args_additional)) > 0){
+    for(each_arg in names(Heatmap_args_additional)){
+      message("Adding args: ", each_arg)
+      Heatmap_args[[each_arg]] = Heatmap_args_additional[[each_arg]]
+    }
+  }
+  Heatmap_args$matrix = as.matrix(cor_matrix)
+
+
+  if(is.null(Heatmap_args$cell_fun)){
+    Heatmap_args$cell_fun <- function(j, i, x, y, w, h, fill) {
+      grid.polygon(
+        x = unit.c(x - 0.5*w, x - 0.5*w, x + 0.5*w),
+        y = unit.c(y - 0.5*h, y + 0.5*h, y + 0.5*h),
+        gp = gpar(
+          col = "gray",
+          fill = Heatmap_args$col(cor_matrix[i,j])
+        ))
+
+      grid.text(
+        label = p_matrix[i,j],
+        x = unit.c(x + 0.5*w),
+        y = unit.c(y - 0.5*h),
+        gp = gpar(fontsize = hm_text_size),
+        hjust = 1.2,vjust = 0)
+
+      grid.text(
+        label = round(cor_matrix[i,j],2),
+        x = unit.c(x - 0.5*w),
+        y = unit.c(y + 0.5*h),
+        gp = gpar(fontsize = hm_text_size),
+        hjust = 0,
+        vjust = 1.2)
+    }
+  }
+  do.call(ComplexHeatmap::Heatmap,
+          Heatmap_args)
+
+}
+
+
+#' Butterfly plot for correlation anaysis
+#'
+#' @param input_df data.frame or correlation results from `fun_stat_cor`
+#' @param input_key key
+#' @param input_variables_lower lower heatmap variables
+#' @param input_variables_upper upper heatmap variables
+#' @param input_df_is_cor input_df_is_cor
+#' @param return_plot_list whethre return plot list
+#' @param plot_text_size plot_text_size
+#' @param plot_x_angle plot_x_angle
+#' @param plot_color_map_bre plot_color_map_bre
+#' @param plot_color_map_col plot_color_map_col
+#' @param tn_lgd tn_lgd
+#' @param plot_rect_col plot_rect_col
+#' @param plot_curvature plot_curvature
+#' @param lower_pos_shift lower_pos_shift
+#' @param upper_pos_shift upper_pos_shift
+#' @param larger_length larger_length
+#' @param smaller_length smaller_length
+#'
+#' @return plot
+#' @export
+#'
+#' @examples
+
+fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables_upper,
+                        # plot params
+                        return_plot_list=F,
+                        plot_text_size = 7,
+                        plot_x_angle = 75,
+                        plot_color_map_bre = c(-1,0,1),
+                        plot_color_map_col = c("#3A3A98","white","#832424"),
+                        tn_lgd = theme(legend.key.size = unit(5,"mm"),
+                                       legend.position = "bottom",
+                                       legend.text = element_text(size = 9),
+                                       legend.title = element_text(size = 9),
+                                       legend.spacing = unit(5,"mm"),
+                                       legend.direction = "vertical"),
+                        # rect_color
+                        plot_rect_col = "gray",
+                        plot_curvature = 0.1,
+                        # arrange
+                        lower_pos_shift = -2,
+                        upper_pos_shift = 2,
+                        larger_length = 3,
+                        smaller_length = 1.6,
+
+                        input_df_is_cor=F){
+  input_variables_lower = unique(input_variables_lower)
+  input_variables_upper = unique(input_variables_upper)
+  all_var <- c(input_key,input_variables_lower,input_variables_upper)
+  lower_var_count = length(input_variables_lower)
+  upper_var_count = length(input_variables_upper)
+  total_var_count = length(all_var)
+
+  #########correlation data parsing########
+  if(input_df_is_cor){
+    message("The input is results is correlation,")
+    cor_res <- input_df
+  }else{
+    message("The input is data.frame, perform correlation")
+    suppressWarnings(
+      {
+        cor_res <- input_df %>% fun_stat_cor(all_var,all_var)
+      }
+    )
+
+  }
+  plot_color_map <- circlize::colorRamp2(plot_color_map_bre,plot_color_map_col)
+
+  # 2) subset the data into lower part
+  #########subsetting data########
+  cor_res_lower <- cor_res %>%
+    dplyr::filter(x %in% c(input_key,input_variables_lower)) %>%
+    dplyr::filter(y %in% c(input_key,input_variables_lower)) %>%
+    mutate(fill = plot_color_map(.$cor))
+
+  cor_res_upper <- cor_res %>%
+    dplyr::filter(x %in% c(input_key,input_variables_upper)) %>%
+    dplyr::filter(y %in% c(input_key,input_variables_upper))%>%
+    mutate(fill = plot_color_map(.$cor))
+
+  message("Change input var into factors")
+  cor_res_lower$x = factor(cor_res_lower$x,levels = c(input_variables_lower,input_key))
+  cor_res_lower$y = factor(cor_res_lower$y,levels = c(input_key,input_variables_lower[lower_var_count:1]))
+
+  cor_res_upper$x = factor(cor_res_upper$x,levels = c(input_variables_upper,input_key))
+  cor_res_upper$y = factor(cor_res_upper$y,levels = c(input_key,input_variables_upper[upper_var_count:1]))
+
+  #########lower data sorting########
+  message("Sorting lower-plot data")
+  cor_res_lower %<>%
+    dplyr::mutate(x_number = as.numeric(x)) %>%
+    dplyr::mutate(y_number = as.numeric(y)) %>%
+    dplyr::filter(y_number+x_number <= lower_var_count+2)
+
+  lower_point <-
+    cor_res_lower %>%
+    dplyr::mutate(point_x = (x_number+1),
+                  point_y = lower_var_count-x_number+2) %>%
+    dplyr::filter(str_detect(rownames(.),paste0(input_key))) %>%
+    dplyr::select(point_x,point_y)%>%
+    rbind(data.frame(
+      point_x = lower_var_count + lower_pos_shift+1,
+      point_y = lower_var_count + lower_pos_shift+1
+    ))
+
+  lower_line = cor_res_lower %>%
+    dplyr::mutate(point_x = (x_number+1),
+                  point_y = lower_var_count-x_number+2) %>%
+    dplyr::filter(str_detect(rownames(.),paste0(input_key))) %>%
+    dplyr::mutate(key_x = lower_var_count + lower_pos_shift+1,
+                  key_y = lower_var_count + lower_pos_shift+1) %>%
+    dplyr::mutate(relation = ifelse(.$cor >0 ,"Positive","Negtive"),
+                  correlation = abs(.$cor),
+                  pvalue = fun_utils_p2star(.$pval,"N.S.")) %>%
+    dplyr::mutate(relation = factor(.$relation,levels = c("Positive","Negtive"))) %>%
+    dplyr::mutate(pvalue = factor(pvalue,levels = c("N.S.","*","**","***","****")))
+
+  #########upper data sorting########
+  message("Sorting upper-plot data")
+  cor_res_upper %<>%
+    dplyr::mutate(x_number = as.numeric(x)) %>%
+    dplyr::mutate(y_number = as.numeric(y)) %>%
+    dplyr::filter(y_number + x_number >= upper_var_count+2)
+
+  upper_point <-
+    cor_res_upper %>%
+    dplyr::mutate(point_x = (y_number -1),
+                  point_y = upper_var_count - y_number+2) %>%
+    dplyr::filter(str_detect(rownames(.),paste0(input_key))) %>%
+    dplyr::select(point_x,point_y) %>%
+    rbind(data.frame(
+      point_x = upper_pos_shift,
+      point_y = upper_pos_shift
+    ))
+  upper_line = cor_res_upper %>%
+    dplyr::mutate(point_x = upper_var_count - y_number+1,
+                  point_y = y_number) %>%
+    dplyr::filter(str_detect(rownames(.),paste0(input_key))) %>%
+    dplyr::mutate(key_x = upper_pos_shift,
+                  key_y = upper_pos_shift) %>%
+    dplyr::mutate(relation = ifelse(.$cor >0 ,"Positive","Negtive"),
+                  correlation = abs(.$cor),
+                  pvalue = fun_utils_p2star(.$pval,"N.S.")) %>%
+    dplyr::mutate(relation = factor(.$relation,levels = c("Positive","Negtive"))) %>%
+    dplyr::mutate(pvalue = factor(pvalue,levels = c("N.S.","*","**","***","****")))
+  #########plot lower########
+
+  p_lower <-
+    cor_res_lower %>%
+    ggplot(aes(x,y))+
+    geom_tile(aes(fill = fill),color=plot_rect_col)+
+    scale_fill_identity()+
+    scale_x_discrete(expand = c(0,0))+
+    scale_y_discrete(expand = c(0,0))+
+    geom_curve(
+      data = lower_line,
+      aes(x = key_x,y=key_y,xend = point_x,yend = point_y,
+          lty = relation,linewidth = correlation,color = pvalue),
+      curvature = plot_curvature,
+      inherit.aes = F,show.legend = F
+    )+
+    scale_linewidth(range = c(1,2))+
+    geom_point(data = lower_point,aes(point_x,point_y),
+               inherit.aes = F)+
+    tn_empty()+
+    theme(axis.text.x = element_text(angle = plot_x_angle,size = plot_text_size,hjust = 1),
+          axis.text.y = element_text(size = plot_text_size,hjust = 1))+
+    coord_fixed(clip = "off")
+  #########plot upper########
+
+  p_upper <-
+    cor_res_upper %>%
+    ggplot(aes(x,y))+
+    geom_tile(aes(fill = fill),color=plot_rect_col)+
+    scale_x_discrete(position = "top",expand = c(0,0))+
+    scale_y_discrete(position = "right",expand = c(0,0))+
+    scale_fill_identity()+
+    coord_fixed(clip = "off")+
+    geom_curve(
+      data = upper_line,
+      aes(x = key_x,y=key_y,xend = point_x,yend = point_y,
+          lty = relation,linewidth = correlation,color = pvalue),
+      curvature = plot_curvature,
+      inherit.aes = F,show.legend = F
+    )+
+    scale_linewidth(range = c(1,2))+
+    geom_point(data = upper_point,aes(point_x,point_y),
+               inherit.aes = F)+
+    tn_empty()+
+    theme(axis.text.x = element_text(angle = plot_x_angle,size = plot_text_size,hjust = 0),
+          axis.text.y = element_text(size = plot_text_size,hjust = 1))
+
+  #########legend plot########
+  legend_df <- data.frame(
+    cor = seq(min(plot_color_map_bre),max(plot_color_map_bre),length.out = 20),
+    pval = c(0.0001,0.001,0.01,0.05,0.6,rep(1,15))
+  ) %>%
+    dplyr::mutate(relation = ifelse(.$cor >0 ,"Positive","Negtive"),
+                  correlation = abs(.$cor),
+                  pvalue = fun_utils_p2star(.$pval,"N.S.")) %>%
+    dplyr::mutate(relation = factor(.$relation,levels = c("Positive","Negtive"))) %>%
+    dplyr::mutate(pvalue = factor(pvalue,levels = c("N.S.","*","**","***","****"))) %>%
+    dplyr::mutate(x =1:nrow(.), y =1:nrow(.))
+
+  p_hm <- legend_df %>%
+    ggplot(aes(x,y,xend = x +1, yend = y + 1))+
+    geom_tile(aes(fill = cor))+
+    scale_fill_gradient2(low = plot_color_map_col[1],
+                         mid = plot_color_map_col[2],
+                         high = plot_color_map_col[3])+
+    theme_void()+
+    tn_lgd
+
+  p_line <-
+    legend_df %>%
+    ggplot(aes(x,y,xend = x +1, yend = y + 1))+
+    geom_curve(aes(size = correlation,color = pvalue,lty = relation))+
+    theme_void()+
+    tn_lgd+    scale_size(range = c(1,2))
+
+  p_hm_lgd = cowplot::get_legend(p_hm)
+  p_line_lgd = cowplot::get_legend(p_line)
+
+  p_list <- list(l = p_lower,u = p_upper,lgd = list(p_hm_lgd,p_line_lgd))
+  #########return##########
+  if(return_plot_list){
+    p_list
+  }else{
+    vpp <- function(x,y) viewport(layout.pos.row = x,layout.pos.col = y)
+    grid.newpage()
+    pushViewport(
+      viewport(layout = grid.layout(
+        nrow = 2,ncol = 2,
+        widths = unit(c(larger_length,smaller_length),"null"),
+        heights = unit(c(smaller_length,larger_length),"null"))))
+    print(p_list[[1]],vp = vpp(2,1))
+
+    upViewport()
+    pushViewport(
+      viewport(layout = grid.layout(
+        nrow = 2,ncol = 2,
+        widths = unit(c(smaller_length,larger_length),"null"),
+        heights = unit(c(larger_length,smaller_length),"null"))))
+    print(p_list[[2]],vp = vpp(1,2))
+
+
+    pushViewport(
+      viewport(layout = grid.layout(
+        nrow = 2,ncol = 2,
+        widths = unit(c(smaller_length,larger_length),"null"),
+        heights = unit(c(smaller_length,larger_length),"null"))))
+
+    pushViewport(viewport(layout.pos.col = 1,layout.pos.row = 1))
+    grid.draw(p_line_lgd)
+    upViewport()
+    pushViewport(viewport(layout.pos.col = 2,layout.pos.row = 2))
+    grid.draw(p_hm_lgd)
+    upViewport()
+  }
+}

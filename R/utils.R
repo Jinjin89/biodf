@@ -468,3 +468,37 @@ fun_utils_split <- function(input_data,
   }
 }
 
+
+#' Capital the each character
+#'
+#' @param input_strings  the strings
+#' @param capital_position  which character to captitolize
+#' @param capital_length  the length
+#'
+#' @return vector
+#' @export
+#'
+#' @examples
+fun_utils_capital <- function(input_strings,capital_position = 1,capital_length = 1){
+  start_pos <- capital_position
+  end_pos <- capital_position + capital_length -1
+  purrr::map(input_strings,function(each_string){
+    # 1) get position
+    stringr::str_sub(each_string,start_pos,end_pos) <-
+      toupper(stringr::str_sub(each_string,start_pos,end_pos))
+    each_string
+  }) %>%
+    purrr::list_c()
+}
+
+
+#' alias for length
+#'
+#' @param ... passing to length
+#'
+#' @return length of input
+#' @export
+#'
+len <- function(...){
+  do.call(length,list(...))
+}

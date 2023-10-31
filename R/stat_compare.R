@@ -110,3 +110,52 @@ fun_stat_cor = function(input_df,
 }
 
 
+#' diagnostic test
+#'
+#' @param input_df input_df
+#' @param input_variables input_variables
+#' @param input_golden_standard input_golden_standard
+#' @param input_pos input_pos
+#' @param input_neg input_neg
+#' @param gold_pos  gold_pos
+#' @param gold_neg gold_neg
+#'
+#' @return df
+#' @export
+#'
+#' @examples
+fun_stat_diagnostic_test <- function(
+    input_df,
+    input_variables,
+    input_golden_standard,
+    input_pos = "Positive",
+    input_neg = "Negative",
+    gold_pos = "Positive",
+    gold_neg = "Negative"){
+  test = input_variables[1]
+  gold = input_golden_standard[1]
+  # 1) data parsing
+  df_subet =input_df %>%
+    dplyr::select(dplyr::all_of(c(test,gold))) %>%
+    magrittr::set_colnames(c("test","gold"))
+
+  # 2)
+  a = df_subet %>% dplyr::filter((gold == gold_pos & test == input_pos )) %>% nrow
+  b = df_subet %>% dplyr::filter((gold == gold_pos & test == input_neg )) %>% nrow
+  c = df_subet %>% dplyr::filter((gold == gold_neg & test == input_pos )) %>% nrow
+  d = df_subet %>% dplyr::filter((gold == gold_neg & test == input_neg )) %>% nrow
+
+  # 3)
+  tpr = a/(a+b)
+  tnr = d/(c+d)
+  ppv = a/(a+c)
+  npv = d/(d+b)
+  message("a,b,c,d:",paste0(c(a,b,c,d),collapse = ","))
+
+  name_concat = paste0(test,"_PREDICT_",gold)
+  data.frame(row.names = test,
+             features = test,
+             golden_standard = gold,
+             tpr = tpr,tnr = tnr,ppv = ppv,npv = npv)
+}
+
