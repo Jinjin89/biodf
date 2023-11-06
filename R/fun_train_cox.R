@@ -72,8 +72,10 @@ fun_train_cox_step = function(input_df,
                            trace=F)
 
   # 5) coefficients
-  coef_final = as.data.frame(coef(step_cox))
+  coef_final = as.data.frame(coef(step_cox)) %>%
+    magrittr::set_rownames(rownames(.),str_remove_all(rownames(.),"`"))
   colnames(coef_final) = "coef"
+
   if(return_fit){
     list(fit = step_cox,
          coef = coef_final)
@@ -183,7 +185,8 @@ fun_train_cox_boost = function(input_df,
                               stepno=cv_cox_step$optimal.step,
                               penalty=cox_penalty$penalty)
 
-  coef_final = as.data.frame(coef(cb_fit))
+  coef_final = as.data.frame(coef(cb_fit)) %>%
+    magrittr::set_rownames(rownames(.),str_remove_all(rownames(.),"`"))
   colnames(coef_final) = "coef"
   coef_final = dplyr::filter(coef_final,coef!=0)
 

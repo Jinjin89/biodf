@@ -399,7 +399,7 @@ fun_surv_multicox = function(
     input_variables = "Risk_score"){
 
   # 1)get all the data
-  input_df_tmp=
+  input_df_tmp <-
     dplyr::select(input_df,all_of(c(input_variables,"time","status")))
 
   # 2) get the fit
@@ -409,7 +409,10 @@ fun_surv_multicox = function(
   res = survival::coxph(fit,data = input_df_tmp)
 
   # 4) change the results into data.frame format
-  df1 = as.data.frame(coef(summary(res)))
+  df1 = as.data.frame(coef(summary(res))) %>%
+    magrittr::set_rownames(
+      str_remove_all(rownames(.),"`")
+    )
 
   # 5)
   df1$features = rownames(df1)
@@ -420,7 +423,6 @@ fun_surv_multicox = function(
   df1$pval = df1[[5]]
   df1[,c("features","hr","ci_low","ci_up","pval"),drop =F]
 }
-
 
 #' roc analysis for survival data
 #'
