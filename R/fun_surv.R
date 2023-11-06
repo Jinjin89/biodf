@@ -409,14 +409,11 @@ fun_surv_multicox = function(
   res = survival::coxph(fit,data = input_df_tmp)
 
   # 4) change the results into data.frame format
-  df1 = as.data.frame(coef(summary(res))) %>%
-    magrittr::set_rownames(
-      str_remove_all(rownames(.),"`")
-    )
+  df1 = as.data.frame(coef(summary(res)))
+  rownames(df1) = stringr::str_remove_all(rownames(df1),"`")
 
   # 5)
   df1$features = rownames(df1)
-  df1$features = stringr::str_remove_all(df1$features,"`")
   df1$hr = df1$`exp(coef)`
   df1$ci_low = exp(df1$coef - 1.96 * df1$`se(coef)`)
   df1$ci_up= exp(df1$coef + 1.96 * df1$`se(coef)`)

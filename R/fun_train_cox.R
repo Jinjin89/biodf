@@ -72,8 +72,8 @@ fun_train_cox_step = function(input_df,
                            trace=F)
 
   # 5) coefficients
-  coef_final = as.data.frame(coef(step_cox)) %>%
-    magrittr::set_rownames(rownames(.),str_remove_all(rownames(.),"`"))
+  coef_final = as.data.frame(coef(step_cox))
+  rownames(coef_final) = str_remove_all(rownames(coef_final),"`")
   colnames(coef_final) = "coef"
 
   if(return_fit){
