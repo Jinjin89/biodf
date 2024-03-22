@@ -27,7 +27,7 @@ fun_stat_fisher_by_column(
 \item{fun_stat_fisher_mat_args}{fun_stat_fisher_mat_args}
 }
 \value{
-comparison of the fisher results
+data.frame,comparison of the fisher results
 }
 \description{
 Give a data.frame, compare the variable

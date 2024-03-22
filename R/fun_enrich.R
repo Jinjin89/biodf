@@ -66,34 +66,58 @@ fun_enrich_gsea = function(input_genes,input_gs,pval = 0.2,
 #'
 #' @param input_df data.frame for gsea or gene list for ora
 #' @param input_methods ora or gse
+#' @param outfile the outfile postion,default is NULL, not saving the results
 #' @param pval pval cutoff for pvalue and qvalue
+#' @param logFC
+#' @param gene
+#' @param term2gene
+#' @param return_list
 #'
 #' @return list of different enrichment obj
 #' @export
 #'
 #' @examples
-#'
-fun_enrich_patch = function(input_df,input_methods = "ora",pval = 0.2,
+#' # there is no example
+fun_enrich_patch = function(input_df,input_methods = "ora",
+                            outfile = NULL,
+                            pval = 0.2,
                             logFC = "logFC",gene = "ID",
-                            term2gene = c("term","gene")){
-  go_db = biodata::db_go
-  kegg_db = biodata::db_kegg
-  hallmark_db = biodata::db_hallmark
-  if(tolower(input_methods[1]) == "ora"){
-    go_res = fun_enrich_ora(input_df,input_gs = go_db,pval = pval,term2gene = term2gene)
-    kegg_res = fun_enrich_ora(input_df,input_gs = kegg_db,pval = pval,term2gene = term2gene)
-    hallmark_res = fun_enrich_ora(input_df,input_gs = hallmark_db,pval = pval,term2gene = term2gene)
+                            term2gene = c("term","gene"),
+                            return_list = list()){
+  stopifnot('outfile should be null or character' = (is.null(outfile) || is.character(outfile)))
 
+  if(is.null(outfile) || (!file.exists(outfile))){
+    message("enrich results not found run it!")
+    go_db = biodata::db_go
+    kegg_db = biodata::db_kegg
+    hallmark_db = biodata::db_hallmark
+    if(tolower(input_methods[1]) == "ora"){
+      df_return = data.frame(genes = ora)
+      go_res = fun_enrich_ora(input_df,input_gs = go_db,pval = pval,term2gene = term2gene)
+      kegg_res = fun_enrich_ora(input_df,input_gs = kegg_db,pval = pval,term2gene = term2gene)
+      hallmark_res = fun_enrich_ora(input_df,input_gs = hallmark_db,pval = pval,term2gene = term2gene)
+    }else{
+      df_return = input_df
+      go_res = fun_enrich_gsea(input_df,input_gs = go_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+      kegg_res = fun_enrich_gsea(input_df,input_gs = kegg_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+      hallmark_res = fun_enrich_gsea(input_df,input_gs = hallmark_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+    }
+    return_list$degs = df_return
+    return_list$go = go_res
+    return_list$kegg = kegg_res
+    return_list$hallmark = hallmark_res
+    if(is.null(outfile)){
+      message('Not saving the results into disk!')
+    }else{
+      message("Saveing results into disk!")
+      return_list %>% saveRDS(outfile)
+      return_list <- readRDS(outfile)
+    }
+  }else if(file.exists(outfile)){
+    message("enrich results found, load it!")
+    return_list = readRDS(outfile)
   }else{
-    go_res = fun_enrich_gsea(input_df,input_gs = go_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
-    kegg_res = fun_enrich_gsea(input_df,input_gs = kegg_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
-    hallmark_res = fun_enrich_gsea(input_df,input_gs = hallmark_db,pval = pval,logFC = logFC,gene = gene,term2gene = term2gene)
+    stop("Something happned, check the source code")
   }
-
-  return(list(
-    go = go_res,
-    kegg = kegg_res,
-    hallmark = hallmark_res
-  ))
-
+  invisible(return_list)
 }

@@ -259,12 +259,16 @@ fun_surv_km <- function(
       ggtheme=ggtheme,
       ...
       ) -> p
+    if(risk_tables){
     ggpubr::ggarrange(
       p$plot,p$table,
       nrow = 2,
       ncol=1,
       align = "v",
       heights = c(3,1.3))
+    }else{
+        p$plot
+      }
   }) ->p_km_list
 
   if(length(p_km_list) == 1){
@@ -693,4 +697,169 @@ fun_plot_surv_cutoff <- function(input_df,
   }else{
     p
   }
+}
+
+
+
+#' clinical data survival parsing quick entry
+#'
+#' @param input_df clinical data
+#' @param shortcut which data to parse
+#' @param fun_surv_parsing_arge args passing to fun_surv_parsing
+#'
+#' @return data.frame: clinical data
+#' @export
+#'
+fun_surv_parsing_shortcut <- function(
+    input_df,
+    shortcut = 'pfs',
+    fun_surv_parsing_arge =list()){
+  fun_surv_parsing_arge$input_df = input_df
+  # 1) get shortcuts
+  shortcut =match.arg(shortcut,c('pfs','dss','pfi','dfi',
+                                 'dfs',
+                                 'os_cbio','dfs_cbio',
+                                 'os_Cbio','dfs_Cbio'))
+
+  # 2) get the surv index
+  fun_surv_parsing_arge$input_surv_index =
+    switch (shortcut,
+      pfs = c('pfs_time','pfs_status',1),
+      dss = c('dss_time','dss_status',1),
+      pfi = c('pfi_time','pfi_status',1),
+      dfi = c('dfi_time','dfi_status',1),
+      dfs = c('dfs_time','dfs_status',1),
+
+      os_cbio = c('overall_survival_months','overall_survival_status','1:DECEASED'),
+      dfs_cbio = c('disease_free_months','disease_free_status','1:Recurred/Progressed'),
+
+      os_Cbio = c('Overall Survival (Months)','Overall Survival Status','1:DECEASED'),
+      dfs_Cbio = c('Disease Free (Months)','Disease Free Status','1:Recurred/Progressed'),
+
+    )
+  # results
+  do.call(fun_surv_parsing,fun_surv_parsing_arge)
+}
+
+
+
+#' Nomogram
+#'
+#' @param input_df input_df
+#' @param input_variables input_variables
+#' @param times times
+#' @param B boostrap
+#' @param m m
+#' @param lim lim
+#' @param time_suffix months
+#' @param outfile pdf save postion
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fun_surv_nomogram <-  function(input_df,input_variables,times = c(12,24,36,48,60), B=10,m=50,lim = c(0,1),time_suffix = "-month",outfile = "./plot/nomogram"){
+  suppressMessages(library(riskRegression))
+  suppressMessages(library(regplot))
+  suppressMessages(library(dplyr))
+  suppressMessages(library(magrittr))
+  suppressMessages(library(rms))
+  suppressMessages(library(survival))
+  suppressMessages(library(survcomp))
+
+  # 1) get data
+  input_df %<>%
+    dplyr::select(dplyr::all_of(c("time","status",input_variables))) %>%
+    data.frame(check.names = T) %>%
+    #filter(time > 0) %>%
+    na.omit() %>%
+    {.}
+  input_variables = colnames(input_df) %>%
+    dplyr::setdiff(c("time","status"))
+  # 2) lasso_cox
+  formular_coxph = as.formula(paste0(
+    "Surv(time,status)~",paste0(colnames(input_df)[-c(1,2)],collapse = "+")
+  ))
+  cox_model = coxph(formular_coxph,data = input_df,x=T,y=T)
+  # 3) nomogram
+  regplot(cox_model,
+          failtime = times,
+          prfail = F,
+          title = "Nomogram",
+          points = T,
+          center = F,
+          subticks = F) -> nomo_results
+
+  # 4) concordance
+  #concordance(cox_model,data = input_df) %>% print
+  #nomo.output=predict(cox_model)
+  cindex <- concordance.index(predict(cox_model),
+                              surv.time = input_df$time,
+                              surv.event = input_df$status,method = "noether")
+  paste0("C_index\n",
+         round(cindex$c.index,2),"\n",
+         "C_index_confint\n",
+         round(cindex$lower,2),"-",
+         round(cindex$upper,2)) %>% message()
+  #
+  # # 4)prediction
+  input_df[["Points"]] = 0
+  for(f in seq_along(input_variables)){
+    df = nomo_results[[f]] %>% as.data.frame()
+    feature_now = intersect(input_variables,names(nomo_results[[f]]))
+    # numeric lm
+    if(is.numeric(df[[feature_now]])){
+      for_mula = as.formula(
+        paste0("Points~",feature_now)
+      )
+      reg = glm(for_mula,data = df)
+      newdta = data.frame(time = input_df[[1]])
+      newdta[[feature_now]] = input_df[[feature_now]]
+      newdta[[feature_now]] = as.numeric(newdta[[feature_now]])
+      rest =  predict(reg,newdata = newdta)
+    }else{
+      feature_data =df[[feature_now]]
+      feature_point = df[["Points"]]
+      feature_point[is.na(feature_point)] = 0
+      newdta = data.frame(time = input_df[[1]])
+      newdta[[feature_now]] = input_df[[feature_now]]
+      # map data with points
+      newdta$points = data.frame(row.names = feature_data,
+                                 score = feature_point)[newdta[[feature_now]],1]
+      rest = as.numeric(newdta$points)
+    }
+    #
+    input_df[["Points"]] = input_df[["Points"]]  + rest
+  }
+
+  # 5) timeroc
+  input_df %>%
+    fun_surv_roc(input_variables = "Points",
+                 input_times =  times) %>%
+    fun_plot_surv_roc_time() -> p_roc
+  par(mar = c(5,4,3,2))
+  par(oma = c(0,0,0,0))
+  #par(plt = c(5,4,4,2))
+
+  # 6) calibration curve
+  pdf(paste0(outfile,"_cindex.pdf"))
+
+  for(time in times){
+    set.seed(1)
+    print(time)
+    f <- cph(formular_coxph, x=T, y=T, surv=T,data=input_df, time.inc=time)
+    #print(f)
+    cal = calibrate(f, u=time,cmethod="KM",method = "boot", m=m, B=B)
+    #print(cal)
+    plot(cal,xlim=lim,ylim=lim,xlab="Predicted survival",ylab="Actual survival",subtitles=F)
+    title(paste0(time,time_suffix," calibration curve"),cex.main = 0.7)
+  }
+  dev.off()
+
+
+  return(list(
+    data = input_df,
+    time_roc = p_roc,
+    fit = cox_model
+  ))
 }

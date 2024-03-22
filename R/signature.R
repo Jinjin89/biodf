@@ -107,6 +107,7 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
 
     # 3) CIBERSORT
     message(">>>CIBERSORT")
+    lm22 = biodata::sig_list$lm22
     cibersort_res = CIBERSORT(mixture_file = as.data.frame(input_expr),
                               sig_matrix = lm22,
                               perm = perm,

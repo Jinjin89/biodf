@@ -104,7 +104,7 @@ fun_stat_fisher_by_row = function(input_df,
 #' @param chisq whether using chisq.text,defulat: FALSE
 #' @param fun_stat_fisher_mat_args fun_stat_fisher_mat_args
 #'
-#' @return comparison of the fisher results
+#' @return data.frame,comparison of the fisher results
 #' @export
 #'
 

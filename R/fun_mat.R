@@ -50,7 +50,9 @@ fun_mat_filter <- function(input_mat, zero_pct = 0.2, na_pct = NULL, qn = F,qn_a
 #' @export
 #'
 #' @examples
-fun_mat_norm <- function(input_mat,method =c("scale","min-max","towards"),axis=1,
+fun_mat_norm <- function(input_mat,
+                         method =c("scale","min-max","towards"),
+                         axis=1,
                          towards_sample = NULL,
                          fun_norm_scale_args = list(),
                          fun_norm_minmax_args = list(),
@@ -127,7 +129,6 @@ fun_mat_norm <- function(input_mat,method =c("scale","min-max","towards"),axis=1
   return(input_mat)
 }
 
-
 #' reanmes genes number into symbols
 #'
 #' @param input_mat the input matrix
@@ -145,8 +146,7 @@ fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
 
   # 2) convert the genes into symbol
   suppressMessages({
-    gene_map_df <- do.call(biodata::fun_gene2symbol,
-                           fun_gene2symbol_args) %>%
+    gene_map_df <- do.call(biodata::fun_gene2symbol,fun_gene2symbol_args) %>%
       dplyr::filter(!is.na(symbol))
   })
   message("How many records kept: ",nrow(gene_map_df))
@@ -182,5 +182,23 @@ fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
   message("How many symbols are mapped duplicatedly: ",nrow(gene_multi_summary_info))
   mat2 <-  input_mat[rownames(gene_multi_summary_info),,drop=F]
   rownames(mat2) <- gene_multi_summary_info$symbol
-  return(rbind(mat1,mat2[,colnames(mat1)]))
+  return(rbind(mat1,mat2[,colnames(mat1),drop=F]))
+}
+
+
+#' QN normalization
+#'
+#' @param input_mat
+#' @param qn_args
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+fun_mat_qn <- function(input_mat,qn_args = list(keep.names = TRUE)){
+  message("perform quantile normalizations")
+  qn_args$x = input_mat
+  input_mat = do.call(preprocessCore::normalize.quantiles,
+                      qn_args)
+  return(input_mat)
 }

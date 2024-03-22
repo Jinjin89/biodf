@@ -10,6 +10,7 @@ fun_train_cox(
   input_y = c("time", "status"),
   alpha = 1,
   return_fit = F,
+  cv.glmnet_args = list(type.measure = "C"),
   seed = 1,
   lambda = "lambda.min"
 )
@@ -24,6 +25,8 @@ fun_train_cox(
 \item{alpha}{1->lasso, 0 -> ridge elastic (0,1)}
 
 \item{return_fit}{whether return fit}
+
+\item{cv.glmnet_args}{glmnet args}
 
 \item{seed}{reproducible seed}
 

@@ -255,3 +255,28 @@ fun_read_meth_idat = function(
   read.table(outfile,sep = "\t",row.names = 1)
 }
 
+
+#' read file into dataframe
+#'
+#' @param input_file the file postion of large text
+#' @param index_col which column is index
+#' @param ... params pass to fread
+#'
+#' @return data.frame objc
+#' @export
+#'
+
+fun_read_df <- \(input_file,index_col ='sample',...){
+  df = fread(input_file,...)
+  if(len(index_col) == 0){
+    return(df)
+  }else if(len(index_col) == 1){
+    df %>%
+      as.data.frame() %>%
+      magrittr::set_rownames(.[[index_col]]) %>%
+      return
+  }else{
+    stop('index column must be length 1 of NULL')
+  }
+
+}

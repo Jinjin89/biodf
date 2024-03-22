@@ -77,3 +77,50 @@ fun_df_combine_columns <- function(input_df,input_variables,
   input_df[[new_var]]  = stringr::str_remove(input_df[[new_var]],paste0(sep,"$"))
   input_df
 }
+
+
+
+
+
+#' Filter the gene expression dataframe by genes, the duplicated genes with larger expression values would be kept
+#'
+#' @param input_df data.frame of gene expression
+#' @param input_group which column is gene column
+#' @param input_numeric_columns the expression column, NULL means all numeric columns
+#'
+#' @return df
+#' @export
+#'
+fun_df_filter_duplicated <- function(input_df,input_group = 'gene_name',input_numeric_columns=NULL){
+  # 1) get numeric vars
+  input_df = as.data.frame(input_df)
+  candidate_columns <- purrr::map_lgl(input_df,is.numeric)
+  candidate_columns = names(candidate_columns)[unname(candidate_columns)]
+  if(length(input_numeric_columns) == 0){
+    all_numeric_vars <- candidate_columns
+  }else{
+    all_numeric_vars <- candidate_columns %>% dplyr::intersect(input_numeric_columns)
+  }
+
+  # 2)
+  all_sums = input_df %>%
+    dplyr::select(dplyr::all_of(all_numeric_vars)) %>%
+    as.matrix() %>%
+    rowSums() %>%
+    as.numeric()
+  tmp <-
+    data.frame(
+      index_map = 1:nrow(input_df),
+      vars = input_df[[input_group]],
+      values = all_sums
+    ) %>%
+    dplyr::arrange(vars,desc(values)) %>%
+    dplyr::mutate(kept_index = dplyr::row_number(),.by = vars) %>%
+    dplyr::mutate(final = kept_index == 1) %>%
+    dplyr::arrange(index_map)
+  stopifnot('names are not at same length' = (length(tmp$vars) == length(input_df[[input_group]])))
+  stopifnot('names are not correctly mapped' = all(tmp$vars == input_df[[input_group]]))
+
+  input_df[tmp$final,,drop=F]
+
+}

@@ -116,7 +116,7 @@ fun_norm_df <- function(input_df,
     each_var_output = output_variable[i]
 
     args$input_numeric = input_df[[each_var]]
-    input_df[[output_variable]] = do.call(current_method_choose_for_normalization,args = args)
+    input_df[[each_var_output]] = do.call(current_method_choose_for_normalization,args = args)
   }
   input_df
 }

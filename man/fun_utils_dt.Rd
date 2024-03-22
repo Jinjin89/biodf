@@ -28,8 +28,6 @@ fun_utils_dt(
 
 \item{rownames}{whether showing the rownames}
 
-\item{digits}{the digits of numeric column}
-
 \item{fontSize}{font size, like "75\%"}
 }
 \value{

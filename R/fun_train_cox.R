@@ -1,5 +1,4 @@
 #' Cox training
-#'
 #' @param input_df input_ff
 #' @param input_variables variables for cox regression
 #' @param input_y time and status column
@@ -7,6 +6,7 @@
 #' @param seed reproducible seed
 #' @param return_fit whether return fit
 #' @param lambda coefficients lambda
+#' @param cv.glmnet_args glmnet args
 #'
 #' @return coefficients coef or list with fit
 #' @export
@@ -16,6 +16,7 @@ fun_train_cox = function(input_df,
                          input_y = c("time","status"),
                          alpha = 1,
                          return_fit = F,
+                         cv.glmnet_args = list(type.measure = "C"),
                          seed = 1,
                          lambda="lambda.min"){
   input_df = fun_surv_data_select = fun_surv_select(input_df,input_variables ,input_y)
@@ -23,7 +24,12 @@ fun_train_cox = function(input_df,
   x = as.matrix(dplyr::select(input_df,dplyr::all_of(input_variables)))
   y = as.matrix(dplyr::select(input_df,all_of(input_y)))
   set.seed(seed)
-  fit = glmnet::cv.glmnet(x = x,y = y,alpha = alpha,family = "cox")
+  cv.glmnet_args$x = x
+  cv.glmnet_args$y = y
+  cv.glmnet_args$alpha = alpha
+  cv.glmnet_args$family = "cox"
+
+  fit = do.call(glmnet::cv.glmnet,cv.glmnet_args)
   coef_data = glmnet::coef.glmnet(fit,s=lambda)
   variable_index = coef_data@i + 1
   variables_final = coef_data@Dimnames[[1]][variable_index]
@@ -185,8 +191,8 @@ fun_train_cox_boost = function(input_df,
                               stepno=cv_cox_step$optimal.step,
                               penalty=cox_penalty$penalty)
 
-  coef_final = as.data.frame(coef(cb_fit)) %>%
-    magrittr::set_rownames(rownames(.),str_remove_all(rownames(.),"`"))
+  coef_final = as.data.frame(coef(cb_fit))
+  rownames(coef_final) <- stringr::str_remove_all(rownames(coef_final),"`")
   colnames(coef_final) = "coef"
   coef_final = dplyr::filter(coef_final,coef!=0)
 
@@ -235,10 +241,12 @@ fun_feature_selection_surv <- function(
     outfile,
     pval_cutoff = 0.05,
     methods_remove = NULL,
+
     methods = c(
       "lasso","eNet75","eNet50","eNet25",
       "stepForward","stepBackward","stepBoth",
       "multicox","unicox","boost","rf"),
+
     # args
     fun_train_cox_args = list(),
     fun_train_cox_step_args = list(),
@@ -444,7 +452,7 @@ fun_train_multiple_cox <- \(input_df,
       }else if(each_method == "boost"){
         model_df <- do.call(fun_train_cox_boost,fun_train_cox_boost_args)
       }else {
-        warning("invalida input: continue next:")
+        warning("invalid input: continue next:")
         warning("This is an invalid method input,check the input,or remove this methods")
         model_df = "This is an invalid method input,check the input,or remove this methods"
       }

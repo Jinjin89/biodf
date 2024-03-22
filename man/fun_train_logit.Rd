@@ -2,13 +2,15 @@
 % Please edit documentation in R/logistic.R
 \name{fun_train_logit}
 \alias{fun_train_logit}
-\title{Training data using lasso-logistic}
+\title{glment train}
 \usage{
 fun_train_logit(
   input_df,
   input_variables,
   input_y,
   lambda = "lambda.min",
+  alpha = 1,
+  cv.glment_args = list(),
   seed = 1,
   return_fit = F
 )
@@ -18,17 +20,21 @@ fun_train_logit(
 
 \item{input_variables}{input_variables}
 
-\item{input_y}{(0,1)}
+\item{input_y}{input_y}
 
-\item{lambda}{lambda}
+\item{lambda}{lambda.min or lambda.1se}
+
+\item{alpha}{0-1}
+
+\item{cv.glment_args}{cv.glment_args}
 
 \item{seed}{seed}
 
-\item{return_fit}{whether return fit}
+\item{return_fit}{return_fit}
 }
 \value{
-model_coef, or list with fit
+data.frame or list with fit and data.frame
 }
 \description{
-Training data using lasso-logistic
+glment train
 }

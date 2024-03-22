@@ -5,7 +5,7 @@
 \title{CIBERSORT is an analytical tool developed by Newman et al. to provide an estimation of the abundances of member cell types in a mixed cell population, using gene expression data.}
 \usage{
 CIBERSORT(
-  sig_matrix = biodata::lm22,
+  sig_matrix = biodata::sig_list$lm22,
   mixture_file,
   perm,
   QN = TRUE,

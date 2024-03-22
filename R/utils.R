@@ -24,7 +24,6 @@ fun_utils_broadcast = function(input_variables,input_targets){
 #' @param input_df_name data_frame_name
 #' @param nrow how many rows each page
 #' @param rownames whether showing the rownames
-#' @param digits the digits of numeric column
 #' @param fontSize font size, like "75%"
 #' @param outdir outfile to save
 #' @param overwrite whether to overwrite if file exists
@@ -32,14 +31,12 @@ fun_utils_broadcast = function(input_variables,input_targets){
 #' @return DT obj
 #' @export
 #'
-fun_utils_dt =
+fun_utils_dt <-
   function(input_df,input_df_name = "data_download",
            outdir=NULL,overwrite=F,nrow = 5,rownames=F,digits = 3,fontSize = "75%"){
     # 1) get numeric column
-    num_column =  purrr::map_lgl(input_df, is.numeric)
-    if(rownames){
-      num_column = c(FALSE,num_column)
-    }
+    # skip
+
     # 2) save into disk
     if(length(outdir) != 0){
       outdir =outdir[1]
@@ -52,8 +49,6 @@ fun_utils_dt =
       }
 
     }
-
-    DT::formatRound(
       DT::formatStyle(
         DT::datatable(
           input_df,
@@ -73,10 +68,7 @@ fun_utils_dt =
               title = input_df_name))
           )),
         columns = colnames(input_df),
-        fontSize = fontSize),
-      columns = num_column,
-      digits = digits
-    )
+        fontSize = fontSize)
   }
 
 
@@ -501,4 +493,20 @@ fun_utils_capital <- function(input_strings,capital_position = 1,capital_length 
 #'
 len <- function(...){
   do.call(length,list(...))
+}
+
+
+#' conver data.frame-like obj into data.frame
+#'
+#' @param input_df data.frame-like obj, like data.table,tibble,etc
+#' @param index_col which coloumn to regard as rownames
+#'
+#' @return df
+#' @export
+#'
+
+fun_2df <- function(input_df,index_col=1){
+  input_df %>%
+    as.data.frame %>%
+    magrittr::set_rownames(.[[index_col]])
 }

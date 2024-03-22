@@ -172,7 +172,7 @@ doPerm <- function(perm, X, Y, absolute, abs_method){
 #' cibersort<-CIBERSORT(sig_matrix = lm22, mixture_file = eset_ec, perm = 1000, QN=TRUE, absolute=FALSE)
 #' head(cibersort)
 
-CIBERSORT <- function(sig_matrix = biodata::lm22, mixture_file, perm, QN = TRUE, absolute, abs_method='sig.score'){
+CIBERSORT <- function(sig_matrix = biodata::sig_list$lm22, mixture_file, perm, QN = TRUE, absolute, abs_method='sig.score'){
 
 
   if (length(intersect(rownames(mixture_file), rownames(sig_matrix))) == 0){

@@ -24,7 +24,7 @@ fun_plot_bar_pval = function(input_df,
       data_new  = data.frame(x = input_df[[x]],
                              y = input_df[[y]])
       data_new = na.omit(data_new)
-      #pval = fun_stat_fisher_by_column(data_new,"x","y")
+      # pval = fun_stat_fisher_by_column(data_new,"x","y")
       fun_stat_fisher_by_column_args$input_df = data_new
       fun_stat_fisher_by_column_args$input_xs = "x"
       fun_stat_fisher_by_column_args$input_ys = "y"
@@ -570,6 +570,7 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
                         # rect_color
                         plot_rect_col = "gray",
                         plot_curvature = 0.1,
+                        tn = tn_empty(),
                         # arrange
                         lower_pos_shift = -2,
                         upper_pos_shift = 2,
@@ -695,7 +696,7 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
     scale_linewidth(range = c(1,2))+
     geom_point(data = lower_point,aes(point_x,point_y),
                inherit.aes = F)+
-    tn_empty()+
+    tn+
     theme(axis.text.x = element_text(angle = plot_x_angle,size = plot_text_size,hjust = 1),
           axis.text.y = element_text(size = plot_text_size,hjust = 1))+
     coord_fixed(clip = "off")
@@ -719,7 +720,7 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
     scale_linewidth(range = c(1,2))+
     geom_point(data = upper_point,aes(point_x,point_y),
                inherit.aes = F)+
-    tn_empty()+
+    tn+
     theme(axis.text.x = element_text(angle = plot_x_angle,size = plot_text_size,hjust = 0),
           axis.text.y = element_text(size = plot_text_size,hjust = 1))
 
@@ -791,3 +792,134 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
     upViewport()
   }
 }
+
+
+
+#' boxplot and density
+#'
+#' @param input_df data.frame
+#' @param x x
+#' @param y y
+#' @param palette "jco"
+#' @param heights ggarange heights
+#' @param tn_top top plot theme
+#' @param tn_bottom bottom plot theme
+#'
+#' @return plot
+#' @export
+#'
+#' @examples
+fun_plot_density_box <- \(
+  input_df,
+  x = "Group",
+  y = "Risk_score",
+  palette = "jco",
+  heights = c(2,1),
+  tn_top = tn(),
+  tn_bottom = tn()
+){
+
+  input_df %>%
+    ggplot2::ggplot(
+      ggplot2::aes(
+        !!as.name(y),
+        group = !!as.name(x),
+        fill =  !!as.name(x)))+
+    ggplot2::geom_density(alpha = 0.2)+
+    tn_top+
+    ggplot2::theme(legend.position = "top")+
+    ggpubr::fill_palette(palette) -> p_d
+
+  input_df %>%
+    ggplot2::ggplot(
+      ggplot2::aes(
+        !!as.name(x),
+        y = !!as.name(y),
+        fill =  !!as.name(x)))+
+    ggplot2::geom_boxplot(width = 0.4)+
+    tn_bottom+
+    tn_no_legend()+
+    ggplot2::coord_flip()+
+    ggpubr::fill_palette(palette)+
+    ggpubr::stat_compare_means(comparisons = list(c(1,2)),label = "p.signif") -> p_box
+  ggpubr::ggarrange(
+    p_d,
+    p_box,
+    nrow = 2,ncol = 1,heights = heights)
+}
+
+
+
+
+#' forest plot
+#'
+#' @param input_df input_df
+#' @param x odds ratio or  hr
+#' @param y genes
+#' @param ci_low ci.low
+#' @param ci_up ci.up
+#' @param feature1 features
+#' @param feature2 features
+#' @param pval pval
+#' @param order order
+#' @param desc T or F
+#' @param tn theme
+#' @param widths the widths of ggarrange
+#'
+#' @return ggarrange obj
+#' @export
+#'
+
+fun_plot_forest2 <- function(
+    input_df,
+    x = "or",
+    y = 'Hugo_Symbol',
+    ci_low = "ci.low",
+    ci_up = "ci.up",
+    feature1 = 'High',
+    feature2 = "Low",
+    pval = "pval",
+    order = NULL,
+    desc=F,
+    tn = tn_empty(),
+    widths = c(2,1,3,1.5)
+){
+
+  if(len(order) == 0){
+    input_df[[y]] <- forcats::fct_reorder(input_df[[y]],input_df[[x]],.desc = desc)
+  }else{
+    input_df[[y]] <- factor(input_df[[y]],levels = order)
+  }
+  tn_no_y <-  theme(axis.text.y = element_blank())
+  tn_no_x <-  theme(axis.text.x = element_blank())
+  tn_title_mid =theme(plot.title = element_text(hjust = 0.5))
+
+  input_df[[pval]] = paste0("p=",format(input_df[[pval]],digits  = 1,trim = T))
+
+  p_label1 <- input_df %>% ggplot(aes(x=1,y = !!as.name(y)))+tn_empty()+tn_no_x+tn_title_mid
+  p_label1 <- p_label1+geom_text(aes(label = !!as.name(feature1)))+
+    ggtitle(feature1)
+
+  p_label2 <- input_df %>% ggplot(aes(x=1,y = !!as.name(y)))+tn_empty()+tn_no_y+tn_no_x+tn_title_mid
+  p_label2 <- p_label2+geom_text(aes(label = !!as.name(feature2)))+
+    ggtitle(feature2)
+
+  p_forest <- input_df %>% ggplot(aes(y = !!as.name(y)))+tn_empty()+tn_no_y+
+    geom_vline(xintercept = 1,lty = 'dashed',color = "gray")+tn_title_mid
+
+  p_forest <- p_forest + geom_point(aes(x = !!as.name(
+    x)))
+  p_forest <- p_forest +
+    geom_errorbar(aes(xmin = !!as.name(ci_low),xmax = !!as.name(ci_up)),
+                  width = 0.3)+
+    scale_x_log10()+
+    ggtitle(x)
+
+  p_pval <- input_df %>% ggplot(aes(x=1,y = !!as.name(y)))+tn_empty()+tn_no_y+tn_no_x
+  p_pval <- p_pval+geom_text(aes(label = !!as.name(pval)))+
+    ggtitle(pval)+tn_title_mid
+  ggarrange(p_label1,p_label2,p_forest,p_pval,nrow = 1,ncol = 4,
+            widths = widths,align = 'h')
+
+}
+

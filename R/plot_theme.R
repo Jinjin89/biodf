@@ -1,4 +1,3 @@
-
 #' Default theme
 #'
 #' @param ... passing to theme
@@ -60,3 +59,16 @@ tn_no_legend <- function(...){
   ggplot2::theme(legend.position = "none",...)
 }
 
+#' theme empty
+#'
+#' @param ...
+#'
+#' @return ggplot-theme
+#' @export
+#'
+tn_empty <- function(...){
+  theme_minimal()+
+    theme(axis.title = element_blank())+
+    theme(panel.grid = element_blank())+
+    theme(...)
+}

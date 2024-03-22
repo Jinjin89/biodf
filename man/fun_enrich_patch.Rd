@@ -7,10 +7,12 @@
 fun_enrich_patch(
   input_df,
   input_methods = "ora",
+  outfile = NULL,
   pval = 0.2,
   logFC = "logFC",
   gene = "ID",
-  term2gene = c("term", "gene")
+  term2gene = c("term", "gene"),
+  return_list = list()
 )
 }
 \arguments{
@@ -18,11 +20,18 @@ fun_enrich_patch(
 
 \item{input_methods}{ora or gse}
 
+\item{outfile}{the outfile postion,default is NULL, not saving the results}
+
 \item{pval}{pval cutoff for pvalue and qvalue}
+
+\item{return_list}{}
 }
 \value{
 list of different enrichment obj
 }
 \description{
 GO, kegg and hallmark enrichment analysis for input_data,
+}
+\examples{
+# there is no example
 }

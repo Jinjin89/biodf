@@ -19,6 +19,7 @@ fun_plot_butterfly(
     unit(5, "mm"), legend.direction = "vertical"),
   plot_rect_col = "gray",
   plot_curvature = 0.1,
+  tn = tn_empty(),
   lower_pos_shift = -2,
   upper_pos_shift = 2,
   larger_length = 3,
