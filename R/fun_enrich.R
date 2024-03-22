@@ -92,7 +92,7 @@ fun_enrich_patch = function(input_df,input_methods = "ora",
     kegg_db = biodata::db_kegg
     hallmark_db = biodata::db_hallmark
     if(tolower(input_methods[1]) == "ora"){
-      df_return = data.frame(genes = ora)
+      df_return = data.frame(genes = input_df)
       go_res = fun_enrich_ora(input_df,input_gs = go_db,pval = pval,term2gene = term2gene)
       kegg_res = fun_enrich_ora(input_df,input_gs = kegg_db,pval = pval,term2gene = term2gene)
       hallmark_res = fun_enrich_ora(input_df,input_gs = hallmark_db,pval = pval,term2gene = term2gene)
