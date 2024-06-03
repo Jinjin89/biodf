@@ -528,6 +528,17 @@ fun_plot_heatmap_tri <- function(
 
 }
 
+fun_get_legend <- function(plot){
+  if (inherits(plot, 'gg')) {
+    gt <- ggplot_gtable(ggplot_build(plot))
+  } else {
+    gt <- ggplotify::as.grob(plot)
+  }
+  gname <- vapply(gt$grobs, function(x) x$name, FUN.VALUE = character(1))
+  idx <- which(gname == "guide-box")
+  legend <- gt$grobs[[idx]]
+  return(legend)
+}
 
 #' Butterfly plot for correlation anaysis
 #'
@@ -578,6 +589,8 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
                         smaller_length = 1.6,
 
                         input_df_is_cor=F){
+  # loading required packages
+  require(grid)
   input_variables_lower = unique(input_variables_lower)
   input_variables_upper = unique(input_variables_upper)
   all_var <- c(input_key,input_variables_lower,input_variables_upper)
@@ -752,8 +765,8 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
     theme_void()+
     tn_lgd+    scale_size(range = c(1,2))
 
-  p_hm_lgd = cowplot::get_legend(p_hm)
-  p_line_lgd = cowplot::get_legend(p_line)
+  p_hm_lgd = fun_get_legend(p_hm)
+  p_line_lgd = fun_get_legend(p_line)
 
   p_list <- list(l = p_lower,u = p_upper,lgd = list(p_hm_lgd,p_line_lgd))
   #########return##########

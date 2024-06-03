@@ -495,7 +495,16 @@ len <- function(...){
   do.call(length,list(...))
 }
 
-
+#' muted
+#'
+#' @param ...
+#'
+#' @return scales::muted
+#' @export
+#'
+muted <- function(...){
+  scales::muted(...)
+}
 #' conver data.frame-like obj into data.frame
 #'
 #' @param input_df data.frame-like obj, like data.table,tibble,etc

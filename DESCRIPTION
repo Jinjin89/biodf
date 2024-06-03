@@ -12,6 +12,7 @@ Imports:
     decoupleR,
     DT,
     furrr,
+    ggplotify,
     glmnet,
     impute,
     janitor,

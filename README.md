@@ -23,15 +23,3 @@ This is a basic example which shows you how to solve a common problem:
 library(biodf)
 ## basic example code
 ```
-
-
-
-## data structure
-
-results columns
-
-1. features
-2. ci_low
-3. ci_up
-4. hr/or/concordance...
-5. pval
