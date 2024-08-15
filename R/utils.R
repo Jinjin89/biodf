@@ -385,7 +385,6 @@ fun_utils_df2oncoprint = function(
 #' @return split obj
 #' @export
 #'
-#' @examples
 fun_utils_split <- function(input_data,
                             input_pct = c(0.7,0.3),
                             key = "sample",

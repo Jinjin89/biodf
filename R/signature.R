@@ -1,36 +1,3 @@
-#' ssGSEA analysis for input_mat using input_genes_list, the results would be saved as outfile
-#'
-#' @param input_mat input_mat
-#' @param input_genes_list input_genes_list
-#' @param outfile outfile
-#' @param rds whether save as rds
-#'
-#' @return data.frame
-#' @export
-#'
-#' @examples
-
-fun_sig_ssGSGA <- function (input_mat, input_genes_list, outfile,rds=F)
-{
-  if (!file.exists(outfile)) {
-    gsea_out = GSVA::gsva(input_mat, input_genes_list, method = "ssgsea",
-                          kcdf = "Gaussian", abs.ranking = TRUE, verbose = FALSE)
-    gsea_out = data.frame(t(gsea_out),check.names = F)
-    gsea_out = dplyr::mutate_all(gsea_out, scale)
-    gsea_out = dplyr::mutate_all(gsea_out, as.numeric)
-    if(rds){
-      saveRDS(gsea_out,outfile)
-    }else{
-      data.table::fwrite(gsea_out,file = outfile,row.names = T,quote = T)
-    }
-  }
-  if(rds){
-    readRDS(outfile)
-  }else{
-    return(read.csv(outfile,row.names = 1,check.names = F))
-  }
-}
-
 #' Calculated the weight sum of the given input coefficients
 #'
 #' @param input_df input_df
@@ -212,3 +179,59 @@ fun_sig_deonvolute_immune =  function(input_expr,outfile,indications,tumor=T,arr
   }
   data.table::fread(outfile)
 }
+
+
+#' Signature deconvolution,call function from `decoupleR`
+#'
+#' @param input_mat the data matrix
+#' @param input_sig signature, data.frame
+#' @param outfile outputfile
+#' @param .source terms/source, stand for gene set names
+#' @param .target genes column
+#' @param input_args other arguments passing to run_method
+#' @param to_matrix whether convert the results into matrix
+#' @param statistic_used which stats used for matrix, only selected when using to_matrix
+#' @param run_method method exported by `decoupleR`
+#'
+#' @return a tibble, or matrix
+#' @export
+#'
+
+fun_sig_deconv <- function(input_mat,input_sig,outfile,.source = 'term',.target = 'gene',input_args = list(),to_matrix=T,statistic_used=NULL,run_method = 'run_gsva'){
+  if(!file.exists(outfile)){
+    message('results not found: ',outfile)
+    library(decoupleR)
+    library(magrittr)
+    # put data into input_args
+    input_args$mat = as.matrix(input_mat)
+    input_args$network = as.data.frame(input_sig)
+    input_args$.source = .source
+    input_args$.target = .target
+
+    res = do.call(run_method,input_args)
+
+    if(to_matrix){
+      all_statistics=unique(res$statistic)
+      select_stat = intersect(statistic_used,all_statistics)
+      # selecting the statistics method
+      if(length(select_stat) == 0){
+        select_stat = all_statistics[1]
+      }else{
+        select_stat = select_stat[1]
+      }
+      message('using stats: ',select_stat)
+      # convert to matrix
+      res %>%
+        dplyr::filter(statistic == select_stat) %>%
+        tidyr::pivot_wider(values_from = score,names_from = condition,id_cols = source) %>%
+        tibble::column_to_rownames('source') %>%
+        as.matrix() %>%
+        saveRDS(outfile)
+    }else{
+      res %>% saveRDS(outfile)
+    }
+  }
+  message('loading from saved files: ',outfile)
+  readRDS(outfile)
+}
+
