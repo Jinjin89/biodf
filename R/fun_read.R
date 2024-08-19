@@ -180,7 +180,7 @@ fun_read_df2maf = function(
 #' @return data.frame
 #' @export
 #'
-#' @examples
+
 fun_read_meth_idat = function(
     input_dir,
     outfile,

@@ -7,7 +7,9 @@
 fun_mat_qn(input_mat, qn_args = list(keep.names = TRUE))
 }
 \arguments{
-\item{qn_args}{}
+\item{input_mat}{input_mat}
+
+\item{qn_args}{qn_args}
 }
 \value{
 matrix

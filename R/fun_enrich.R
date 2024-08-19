@@ -8,7 +8,7 @@
 #' @return enrichment results
 #' @export
 #'
-#' @examples
+
 fun_enrich_ora = function(input_genes,input_gs,pval = 0.2,term2gene = c("term","gene")){
   # 1) term to gene
   term_2_genes = dplyr::select(input_gs,dplyr::all_of(term2gene))
@@ -36,7 +36,7 @@ fun_enrich_ora = function(input_genes,input_gs,pval = 0.2,term2gene = c("term","
 #' @return enrich results
 #' @export
 #'
-#' @examples
+
 fun_enrich_gsea = function(input_genes,input_gs,pval = 0.2,
                            logFC = "logFC",gene = "ID",
                            term2gene = c("term","gene")){
@@ -68,16 +68,15 @@ fun_enrich_gsea = function(input_genes,input_gs,pval = 0.2,
 #' @param input_methods ora or gse
 #' @param outfile the outfile postion,default is NULL, not saving the results
 #' @param pval pval cutoff for pvalue and qvalue
-#' @param logFC
-#' @param gene
-#' @param term2gene
-#' @param return_list
+#' @param logFC logFC
+#' @param gene gene
+#' @param term2gene term2gene
+#' @param return_list return_list
 #'
 #' @return list of different enrichment obj
 #' @export
 #'
-#' @examples
-#' # there is no example
+
 fun_enrich_patch = function(input_df,input_methods = "ora",
                             outfile = NULL,
                             pval = 0.2,

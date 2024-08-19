@@ -9,7 +9,7 @@
 #' @return filtered/normalized matrix
 #' @export
 #'
-#' @examples
+
 fun_mat_filter <- function(input_mat, zero_pct = 0.2, na_pct = NULL, qn = F,qn_args = list(keep.names=TRUE)){
   message(paste0("input shape: ",dim(input_mat)[1],"-",dim(input_mat)[2]))
   if (!is.null(zero_pct)) {
@@ -49,7 +49,7 @@ fun_mat_filter <- function(input_mat, zero_pct = 0.2, na_pct = NULL, qn = F,qn_a
 #' @return normalized matrix
 #' @export
 #'
-#' @examples
+
 fun_mat_norm <- function(input_mat,
                          method =c("scale","min-max","towards"),
                          axis=1,
@@ -137,7 +137,7 @@ fun_mat_norm <- function(input_mat,
 #' @return matrix
 #' @export
 #'
-#' @examples
+
 fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
   # 1) get the matrix rownames
   matrix_rownames <- rownames(input_mat)
@@ -188,13 +188,12 @@ fun_mat_rename2symbol <- function(input_mat,fun_gene2symbol_args = list()){
 
 #' QN normalization
 #'
-#' @param input_mat
-#' @param qn_args
+#' @param input_mat input_mat
+#' @param qn_args qn_args
 #'
 #' @return matrix
 #' @export
 #'
-#' @examples
 fun_mat_qn <- function(input_mat,qn_args = list(keep.names = TRUE)){
   message("perform quantile normalizations")
   qn_args$x = input_mat

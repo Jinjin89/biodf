@@ -235,7 +235,7 @@ fun_surv_select = function(input_df,input_variables,input_y=c("time","status")){
 #' @return feature list
 #' @export
 #'
-#' @examples
+
 fun_feature_selection_surv <- function(
     input_df,input_variables,
     outfile,
@@ -371,7 +371,7 @@ fun_feature_selection_surv <- function(
 #' @return list of model coef
 #' @export
 #'
-#' @examples
+
 fun_train_multiple_cox <- \(input_df,
                         design_df,
                         input_features_list,
@@ -481,7 +481,7 @@ fun_train_multiple_cox <- \(input_df,
 #' @return df
 #' @export
 #'
-#' @examples
+
 fun_design_cox <- function(input_methods,notUsedForTraining = c("rf","unicox")){
   purrr::map(input_methods,\(each_name){
     purrr::map(input_methods %>% setdiff(notUsedForTraining),function(each_train_name){

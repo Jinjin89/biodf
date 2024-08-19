@@ -7,7 +7,7 @@
 #' @return normalized data
 #' @export
 #'
-#' @examples
+
 fun_norm_scale <- function(input_numeric,scale_args = list()){
   dims <- dim(input_numeric)
   input_rownames = rownames(input_numeric)
@@ -29,7 +29,7 @@ fun_norm_scale <- function(input_numeric,scale_args = list()){
 #' @return normalized numeric
 #' @export
 #'
-#' @examples
+
 fun_norm_minmax <- function(input_numeric){
   input_numeric = input_numeric - min(input_numeric,na.rm = T)
   input_numeric = input_numeric/max(input_numeric,na.rm = T)
@@ -44,7 +44,7 @@ fun_norm_minmax <- function(input_numeric){
 #' @return normalized input_mat1
 #' @export
 #'
-#' @examples
+
 fun_norm_substract <- function(input_mat1,input_mat2){
   # 1) check shape
   stopifnot("The nrow of input_mat1 shoud be same with input_mat2" = (all(nrow(input_mat1) == nrow(input_mat2))))
@@ -72,7 +72,7 @@ fun_norm_substract <- function(input_mat1,input_mat2){
 #' @return normlized dataframe
 #' @export
 #'
-#' @examples
+
 fun_norm_df <- function(input_df,
                         input_variables,
                         output_variable=NULL,

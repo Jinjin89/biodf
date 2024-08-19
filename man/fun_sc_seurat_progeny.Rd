@@ -20,6 +20,9 @@ fun_sc_seurat_progeny(
 
 \item{top}{how many progeny genes for each pathway to use, default is 100}
 }
+\value{
+todo
+}
 \description{
 Calculate the progeny score for Seurat obj using decouplerR
 }

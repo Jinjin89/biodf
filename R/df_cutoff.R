@@ -13,7 +13,7 @@
 #' @return data.frame,results or grouped df
 #' @export
 #'
-#' @examples
+
 
 fun_df_cutoff_fisher <- function (input_df, input_variables,
                                   input_group = "Group",

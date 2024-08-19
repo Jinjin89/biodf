@@ -107,10 +107,10 @@ fun_surv_cutoff = function(
 #' @param input_labels the lables length should be length(input_pct)+1
 #' @param factor_level  T or F, whether to refactor as input_labels
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
+
 fun_surv_cutoff_quantile = function(
     input_df,
     input_variables = "Risk_score",
@@ -521,7 +521,7 @@ fun_surv_roc =function(
 #' @return ggplot list
 #' @export
 #'
-#' @examples
+
 fun_plot_surv_roc_time = function(
     input_surv_roc_list,
     palette = "jco",
@@ -647,10 +647,9 @@ fun_plot_surv_km <- function(...){
 #' @param vline_color vline_color
 #' @param line_color line_color
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
 fun_plot_surv_cutoff <- function(input_df,
                                  input_variables = "Risk_score",
                                  input_pct = seq(0.2,0.8,0.01),
@@ -754,10 +753,9 @@ fun_surv_parsing_shortcut <- function(
 #' @param time_suffix months
 #' @param outfile pdf save postion
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
 fun_surv_nomogram <-  function(input_df,input_variables,times = c(12,24,36,48,60), B=10,m=50,lim = c(0,1),time_suffix = "-month",outfile = "./plot/nomogram"){
   suppressMessages(library(riskRegression))
   suppressMessages(library(regplot))

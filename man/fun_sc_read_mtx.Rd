@@ -20,6 +20,9 @@ fun_sc_read_mtx(
 
 \item{mtx_file_search}{key word to find mtx dir position}
 }
+\value{
+todo
+}
 \description{
 fun_sc_read_mtx
 }

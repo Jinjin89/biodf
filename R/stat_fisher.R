@@ -59,7 +59,6 @@ fun_stat_fisher_mat = function(input_mat,input_name,chisq=F,test_args = list()){
 #' @return data.frame which appedn the or, ci_low, ci_up, pval column
 #' @export
 #'
-#' @examples
 fun_stat_fisher_by_row = function(input_df,
                                   input_abcd = c(2,3,4,5),
                                   chisq=F,

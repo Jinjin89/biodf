@@ -62,7 +62,7 @@ fun_df_feature_map <- function(input_df,input_variables,from,to,
 #' @return data.frame
 #' @export
 #'
-#' @examples
+
 fun_df_combine_columns <- function(input_df,input_variables,
                                    new_var = "others",
                                    anno_mark = ":",sep = ";"){

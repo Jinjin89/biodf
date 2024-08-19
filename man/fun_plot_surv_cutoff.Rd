@@ -42,6 +42,9 @@ fun_plot_surv_cutoff(
 
 \item{line_color}{line_color}
 }
+\value{
+todo
+}
 \description{
 Plot unicox pvalues and HR with differnet cutoff
 }

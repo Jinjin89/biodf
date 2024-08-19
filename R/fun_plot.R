@@ -9,7 +9,7 @@
 #' @return ggplot obj
 #' @export
 #'
-#' @examples
+
 fun_plot_bar_pval = function(input_df,
                              input_xs,
                              input_ys,
@@ -66,7 +66,7 @@ fun_plot_bar_pval = function(input_df,
 #' @return ggplot obj
 #' @export
 #'
-#' @examples
+
 fun_plot_volcano1 =function(
     input_df,
     pval = "adj.P.Val",
@@ -120,7 +120,7 @@ fun_plot_volcano1 =function(
 #' @return ggplot obj
 #' @export
 #'
-#' @examples
+
 fun_plot_forest <-  function(
     input_df,
     x = "hr",
@@ -230,7 +230,7 @@ fun_plot_forest <-  function(
 #' @return ComplexHeatmap plot
 #' @export
 #'
-#' @examples
+
 fun_plot_heatmap = function(
     input_matrix,
     top_df,
@@ -383,7 +383,7 @@ fun_plot_heatmap = function(
 #' @return ggplot or list with ggplots
 #' @export
 #'
-#' @examples
+
 fun_plot_boxplot <-function(input_df,input_x,input_y,palette="jco",
                             theme_now = tn(),
                             remove_suffix=T,
@@ -444,7 +444,7 @@ fun_plot_boxplot <-function(input_df,input_x,input_y,palette="jco",
 #' @return heatmap plot
 #' @export
 #'
-#' @examples
+
 fun_plot_heatmap_tri <- function(
     input_cor_df,x = "x",
     y = "y",fill = "cor",text="p_sig",
@@ -563,7 +563,7 @@ fun_get_legend <- function(plot){
 #' @return plot
 #' @export
 #'
-#' @examples
+
 
 fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables_upper,
                         # plot params
@@ -821,7 +821,7 @@ fun_plot_butterfly <- \(input_df,input_key,input_variables_lower,input_variables
 #' @return plot
 #' @export
 #'
-#' @examples
+
 fun_plot_density_box <- \(
   input_df,
   x = "Group",

@@ -12,7 +12,7 @@
 #' @return train results of list or feature names
 #' @export
 #'
-#' @examples
+
 fun_train_logit_rf <-
   function (input_df, input_variables, input_y,seed = 1, return_fit = F,top_feature = 10,importance_method = "MeanDecreaseGini",randomForest_args = list(importance = TRUE)){
     input_df %>% dplyr::select(dplyr::all_of(c(input_variables,
@@ -500,17 +500,17 @@ fun_feature_selection_logit <-function (
 
 #' logit-train, with multiple methods
 #'
-#' @param input_df
-#' @param input_y
-#' @param design_df
-#' @param input_features_list
-#' @param outfile
-#' @param feature_selection_method
-#' @param train_method
-#' @param fun_train_logit_args
-#' @param fun_train_logit_step_args
-#' @param fun_logit_multi_args
-#' @param fun_train_logit_svm_args
+#' @param input_df todo
+#' @param input_y todo
+#' @param design_df todo
+#' @param input_features_list todo
+#' @param outfile todo
+#' @param feature_selection_method todo
+#' @param train_method todo
+#' @param fun_train_logit_args todo
+#' @param fun_train_logit_step_args todo
+#' @param fun_logit_multi_args todo
+#' @param fun_train_logit_svm_args todo
 #'
 #' @return list of models
 #' @export

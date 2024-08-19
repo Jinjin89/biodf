@@ -32,6 +32,9 @@ fun_surv_nomogram(
 
 \item{outfile}{pdf save postion}
 }
+\value{
+todo
+}
 \description{
 Nomogram
 }

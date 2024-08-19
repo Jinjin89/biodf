@@ -15,7 +15,6 @@
 #' @return NULL
 #' @export
 #'
-#' @examples
 fun_extend_plot_heatmap_cor <- function(
     input_df,
     input_x=NULL,

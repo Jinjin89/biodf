@@ -37,6 +37,9 @@ fun_run_gistic2(
 
 \item{LD_LIBRARY_PATH}{gistic2 LD_LIBRARY_PATH}
 }
+\value{
+gistic2
+}
 \description{
 Run gistic2
 }

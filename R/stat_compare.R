@@ -10,7 +10,6 @@
 #' @return data.frame with pvalue, and summarise each group parms
 #' @export
 #'
-#' @examples
 fun_stat_compare_means = function(input_df,input_groups="Group",input_variables=NULL,fun = "kruskal.test",fun_sum = "median"){
   if(length(input_variables) == 0){
     message("Input variables not found")
@@ -80,7 +79,7 @@ fun_stat_compare_means = function(input_df,input_groups="Group",input_variables=
 #' @return data.frame of the correlation results
 #' @export
 #'
-#' @examples
+
 fun_stat_cor = function(input_df,
                         input_xs,
                         input_ys,
@@ -123,7 +122,6 @@ fun_stat_cor = function(input_df,
 #' @return df
 #' @export
 #'
-#' @examples
 fun_stat_diagnostic_test <- function(
     input_df,
     input_variables,

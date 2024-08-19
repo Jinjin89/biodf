@@ -30,6 +30,9 @@ fun_nomogram_logit(
 
 \item{cex.var}{nomogtam plot funciton}
 }
+\value{
+todo
+}
 \description{
 nomogram training for logistics regression
 }

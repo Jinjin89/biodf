@@ -8,7 +8,6 @@
 #' @return data.frame with calculated value
 #' @export
 #'
-#' @examples
 fun_sig_weighted_sum = function(
     input_df,
     input_coef,

@@ -42,6 +42,9 @@ fun_utils_df2oncoprint(
 
 \item{height_decrease}{height_decrease}
 }
+\value{
+todo
+}
 \description{
 Oncoprint data preparation
 }

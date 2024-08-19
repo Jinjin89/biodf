@@ -10,10 +10,9 @@
 #' @param gistic2_refgene gistic2 refegene
 #' @param LD_LIBRARY_PATH gistic2 LD_LIBRARY_PATH
 #'
-#' @return
+#' @return gistic2
 #' @export
 #'
-#' @examples
 fun_run_gistic2 <-function(
     input_df,
     input_cnv_seg_file,

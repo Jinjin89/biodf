@@ -24,14 +24,17 @@ fun_enrich_patch(
 
 \item{pval}{pval cutoff for pvalue and qvalue}
 
-\item{return_list}{}
+\item{logFC}{logFC}
+
+\item{gene}{gene}
+
+\item{term2gene}{term2gene}
+
+\item{return_list}{return_list}
 }
 \value{
 list of different enrichment obj
 }
 \description{
 GO, kegg and hallmark enrichment analysis for input_data,
-}
-\examples{
-# there is no example
 }

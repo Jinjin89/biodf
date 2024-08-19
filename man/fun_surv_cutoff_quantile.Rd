@@ -26,6 +26,9 @@ fun_surv_cutoff_quantile(
 
 \item{factor_level}{T or F, whether to refactor as input_labels}
 }
+\value{
+todo
+}
 \description{
 cutoff with quantile points, e.g. if you supplied input_pct as c(0.25,0.5,0.75), you will get four groups
 }

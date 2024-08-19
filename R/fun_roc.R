@@ -10,7 +10,6 @@
 #' @return list contains roc and auc
 #' @export
 #'
-#' @examples
 fun_roc = function(input_df,input_variables,input_category = "binaryResponse",levels = NULL, direction="auto",smooth = FALSE){
 
   if(is.null(levels)){
@@ -47,10 +46,9 @@ fun_roc = function(input_df,input_variables,input_category = "binaryResponse",le
 #' @param palette palette
 #' @param digits
 #'
-#' @return
+#' @return ggplot obj
 #' @export
 #'
-#' @examples
 fun_plot_roc = function(input_roc,legend.position = c(0.7,0.2),title = NULL,palette = c("black"),digits = 2){
   # the input data should be roc list
   # with roc

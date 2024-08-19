@@ -6,7 +6,7 @@
 #' @return data.frame, the merged df with genes mutation status
 #' @export
 #'
-#' @examples
+
 fun_extend_imvigor_mut <- function(
     input_df,input_variables){
   # 1)
@@ -111,3 +111,58 @@ fun_extend_pRRophetic <- function(
     as.data.frame() %>%
     magrittr::set_rownames(.$sample)
 }
+
+
+
+#' Signature deconvolution: TIP
+#'
+#' @param input_mat input matrix
+#' @param outfile results saving files
+#'
+#' @return data.frame
+#' @export
+#'
+
+fun_extend_sig_tip <- function(input_mat,outfile){
+  # 1)
+  if(!file.exists(outfile)){
+
+    sig_names = names(biodata::sig_list$step)
+    sig_df <-
+      purrr::map(sig_names,\(each_sig){
+        sig_df = biodata::sig_list$step[[each_sig]]
+        data.frame(gene = sig_df) %>%
+          dplyr::mutate(term = each_sig)
+      }) %>%
+      purrr::list_rbind() %>%
+      dplyr::count(term,gene)
+    # 2) deconvolute
+    deconv_df = fun_sig_deconv(
+      input_mat = input_mat,
+      input_sig = sig_df,
+      outfile = outfile,
+      statistic_used = 'ssgsea',
+      input_args = list(method = 'ssgsea',minsize  = 1)
+    ) %>% t %>%
+      as.data.frame()
+    deconv_df <-
+      deconv_df%>%
+      dplyr::mutate(Step2 = Step2.positive - Step2.negative) %>%
+      dplyr::mutate(Step3 = Step3.positive - Step3.negative) %>%
+      dplyr::mutate(Step5 = Step5.positive - Step5.negative) %>%
+      dplyr::mutate(Step6 = Step6.positive - Step6.negative) %>%
+      dplyr::mutate(Step7 = Step7.positive - Step7.negative) %>%
+      dplyr::select(-matches('positive$|negative$')) %>%
+      dplyr::mutate(dplyr::across(dplyr::everything(),fun_norm_scale))
+    print(deconv_df)
+    # 3) soring df
+    tip_names = colnames(deconv_df) %>% sort
+    deconv_df[,tip_names] %>%
+      mutate(sample = rownames(.)) %>%
+      saveRDS(outfile)
+  }
+  readRDS(outfile)
+}
+
+
+

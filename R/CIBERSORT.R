@@ -44,16 +44,7 @@
 # library(parallel)
 # library(preprocessCore)
 
-#Core algorithm
-#' Title
-#'
-#' @param X
-#' @param y
-#' @param absolute
-#' @param abs_method
-#'
-#' @export
-#'
+
 CoreAlg <- function(X, y, absolute, abs_method){
 
   #try different values of nu
@@ -107,17 +98,7 @@ CoreAlg <- function(X, y, absolute, abs_method){
 
 }
 
-#do permutations
-#' Title
-#'
-#' @param perm Permutation
-#' @param X
-#' @param Y
-#' @param absolute
-#' @param abs_method
-#'
-#' @export
-#'
+
 doPerm <- function(perm, X, Y, absolute, abs_method){
   itor <- 1
   Ylist <- as.list(data.matrix(Y))

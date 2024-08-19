@@ -5,7 +5,7 @@
 #' @return seurat obj with scissor feature
 #' @export
 #'
-#' @examples
+
 fun_sc_seurat_scissor =
   function(...){
     suppressMessages(require(Scissor))
@@ -35,7 +35,7 @@ fun_sc_seurat_scissor =
 #' @return ggplot obj
 #' @export
 #'
-#' @examples
+
 fun_sc_plot_scissor = function(input_sc,pt.size = 0.8,group.by = 'scissor',
                                cols = c('grey','indianred1','royalblue')){
   DimPlot(input_sc, reduction = 'umap',
@@ -53,7 +53,7 @@ fun_sc_plot_scissor = function(input_sc,pt.size = 0.8,group.by = 'scissor',
 #' @return monocle single cell data obj
 #' @export
 #'
-#' @examples
+
 fun_sc_seurat_trajectory <-
   function(input_sc,input_genes,input_stat = "cell_major",input_root =NULL){
     suppressMessages(
@@ -114,10 +114,10 @@ fun_sc_seurat_trajectory <-
 #' @param clustering_resolution clustering_resolution
 #' @param umap_dims umap_dims
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
+
 fun_sc_seurat_preprocessing <-
   function(input_sc,
            filter_feature_low = NULL,
@@ -207,10 +207,10 @@ fun_sc_seurat_preprocessing <-
 #' @param mtx_file_search key word to find mtx dir position
 #' @param outfile the outfile
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
+
 fun_sc_read_mtx <-  function(input_dir,outfile,input_anno=NULL,mtx_file_search = "barcodes.tsv.gz"){
 
   if(!is.null(outfile) && file.exists(outfile)){
@@ -286,10 +286,10 @@ fun_sc_read_mtx <-  function(input_dir,outfile,input_anno=NULL,mtx_file_search =
 #' @param fun_sc which expression data in Seurat to use, the default is RNA data
 #' @param top how many progeny genes for each pathway to use, default is 100
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
+
 fun_sc_seurat_progeny <- function(input_seurat,
                                   out_file,
                                   fun_sc = function(x) x@assays$RNA@data,
@@ -350,7 +350,7 @@ fun_sc_seurat_progeny <- function(input_seurat,
 #' @return cellchat obj
 #' @export
 #'
-#' @examples
+
 fun_sc_cellchat <- function(input_sc,
                             cellchat_rds,
                             cellchat_db = NULL,
@@ -432,7 +432,7 @@ fun_sc_cellchat <- function(input_sc,
 #' @return NULL
 #' @export
 #'
-#' @examples
+
 
 fun_sc_cellchat_netVisual_circle <- function(
     input_cellchat,

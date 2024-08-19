@@ -48,7 +48,6 @@ fun_merge_matrix = function(input_df,input_matrix,input_variables,output_variabl
 #' @return a data.frame with genes mutation status
 #' @export
 #'
-#' @examples
 fun_merge_maf = function(input_df,input_maf,input_variables,key = "sample"){
   # 1) extract data
   if(class(input_maf)[1] == "MAF"){
@@ -91,7 +90,6 @@ fun_merge_maf = function(input_df,input_maf,input_variables,key = "sample"){
 #' @return data.frame with merged varaibles
 #' @export
 #'
-#' @examples
 fun_merge_df = function(
     input_df,
     input_df_merge,

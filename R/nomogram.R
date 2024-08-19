@@ -8,7 +8,7 @@
 #' @return a predictive dataframe with yhat(which is the predictive results)
 #' @export
 #'
-#' @examples
+
 fun_nomogram_predict <- function(input_df,input_fit,input_variables,input_y){
 
   # 1) initialize
@@ -52,10 +52,10 @@ fun_nomogram_predict <- function(input_df,input_fit,input_variables,input_y){
 #' @param cex.axis nomogram plot function
 #' @param cex.var nomogtam plot funciton
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
+
 fun_nomogram_logit <- function(input_df,input_variables,input_y,
                                val_list = NULL,
                                funlabel = "Probability",

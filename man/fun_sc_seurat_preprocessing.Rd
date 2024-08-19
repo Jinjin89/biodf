@@ -44,6 +44,9 @@ fun_sc_seurat_preprocessing(
 
 \item{umap_dims}{umap_dims}
 }
+\value{
+todo
+}
 \description{
 Single cell preprocessing wrapper, params set to NULL to skip
 }

@@ -7,7 +7,7 @@
 #' @return data.frame of differential expression table
 #' @export
 #'
-#' @examples
+
 fun_deg_tpm_limma = function(input_anno,input_expr,contrast = c("High","Low")){
   suppressMessages(library(limma))
   # data preprocessing ------------------
@@ -75,7 +75,7 @@ fun_deg_tpm_limma = function(input_anno,input_expr,contrast = c("High","Low")){
 #' @return add p_sig column into input_df
 #' @export
 #'
-#' @examples
+
 fun_deg_cutoff = function(input_df,
                           pval = "adj.P.Val",
                           pval_cutoff=0.01,
@@ -116,7 +116,7 @@ fun_deg_cutoff = function(input_df,
 #' @return list with differntial expressed genes
 #' @export
 #'
-#' @examples
+
 fun_dmr_champ <-  function(input_df,input_matrix,
 
                                 # save the DMR results

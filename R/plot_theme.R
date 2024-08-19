@@ -52,7 +52,7 @@ tn_bar = function(show_axis_title=F,legend_text = 6,...){
 #'
 #' @param ... pass to ggplot theme function
 #'
-#' @return
+#' @return a ggplot theme
 #' @export
 #'
 tn_no_legend <- function(...){

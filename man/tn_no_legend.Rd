@@ -9,6 +9,9 @@ tn_no_legend(...)
 \arguments{
 \item{...}{pass to ggplot theme function}
 }
+\value{
+a ggplot theme
+}
 \description{
 No legend
 }

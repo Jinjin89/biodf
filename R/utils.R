@@ -81,7 +81,7 @@ fun_utils_dt <-
 #' @return a vector of strings
 #' @export
 #'
-#' @examples
+
 fun_utils_p2star = function(input_pval,ns = ""){
   purrr::map_chr(input_pval,function(x){
     dplyr::case_when(
@@ -122,7 +122,7 @@ fun_utils_eval = function(input_texts){
 #' @return filtered matrix
 #' @export
 #'
-#' @examples
+
 fun_utils_mat_filter = function(input_mat,zero_pct=0.2,na_pct = NULL,qn = F){
   .Deprecated("fun_mat_filter")
   if(!is.null(zero_pct)){
@@ -156,7 +156,7 @@ fun_utils_mat_filter = function(input_mat,zero_pct=0.2,na_pct = NULL,qn = F){
 #' @return a list of stings with newline inserted
 #' @export
 #'
-#' @examples
+
 fun_utils_insert_newline_for_long_stings = function(
     input_strings,string_check = 50,sep = "_"){
   purrr::map_chr(input_strings,function(each_string){
@@ -194,7 +194,7 @@ fun_utils_insert_newline_for_long_stings = function(
 #' @return a list with color map
 #' @export
 #'
-#' @examples
+
 fun_utils_get_color = function(
     input_df,input_variables=NULL,
     input_colors = NULL,
@@ -287,10 +287,9 @@ fun_utils_get_color = function(
 #' @param cell_width cell_width
 #' @param height_decrease height_decrease
 #'
-#' @return
+#' @return todo
 #' @export
 #'
-#' @examples
 fun_utils_df2oncoprint = function(
     input_df,
     input_variables,
@@ -469,7 +468,6 @@ fun_utils_split <- function(input_data,
 #' @return vector
 #' @export
 #'
-#' @examples
 fun_utils_capital <- function(input_strings,capital_position = 1,capital_length = 1){
   start_pos <- capital_position
   end_pos <- capital_position + capital_length -1

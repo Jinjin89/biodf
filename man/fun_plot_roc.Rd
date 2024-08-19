@@ -23,6 +23,9 @@ fun_plot_roc(
 
 \item{digits}{}
 }
+\value{
+ggplot obj
+}
 \description{
 ROC plot
 }
