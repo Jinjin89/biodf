@@ -4,7 +4,7 @@
 \alias{tn_bar}
 \title{theme for barplot}
 \usage{
-tn_bar(show_axis_title = F, legend_text = 6, ...)
+tn_bar(show_axis_title = F, show_legend_title = F, legend_text = 6, ...)
 }
 \arguments{
 \item{show_axis_title}{whether plot axis title}
