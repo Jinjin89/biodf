@@ -32,7 +32,7 @@ tn = function(...){
 tn_bar = function(show_axis_title=F,show_legend_title=F,legend_text = 6,...){
   ggplot2::theme_minimal()+
     ggplot2::theme(
-      text = ggplot2::element_text(family = 'Arial'),
+      text = ggplot2::element_text(),
       panel.grid = ggplot2::element_blank(),
       panel.background = ggplot2::element_rect(fill =NA,color = "black"),
       axis.ticks = ggplot2::element_line(color = "black"),
