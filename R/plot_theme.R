@@ -9,7 +9,7 @@
 tn = function(...){
   ggplot2::theme_minimal()+
     ggplot2::theme(
-      text = ggplot2::element_text(family = 'Arial'),
+      text = ggplot2::element_text(),
       panel.grid = ggplot2::element_blank(),
       #plot.background = ggplot2::element_blank(),
       plot.background = ggplot2::element_rect(fill = NA,colour = NA),
@@ -84,20 +84,6 @@ tn_empty <- function(...){
     theme(...)
 }
 
-
-
-#' add arial theme
-#'
-#' @param ... passing to ggplot2::theme
-
-#' @return ggplot2 theme obj
-#'
-tn_arial <- function(...){
-  ggplot2::theme(
-    text = ggplot2::element_text(family = 'Arial'),
-    ...
-  )
-}
 
 #' italic the text x
 #'
