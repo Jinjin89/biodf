@@ -9,19 +9,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
-    decoupleR,
-    DT,
     furrr,
-    ggplotify,
-    glmnet,
     impute,
     janitor,
-    pROC,
     survival,
-    survminer,
-    timeROC
+    survminer
 Depends: 
-    R (>= 2.10),
+    R (>= 4.0),
     rlang,
     purrr,
     tidyr,
